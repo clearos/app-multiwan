@@ -23,6 +23,15 @@ $app['category'] = lang('base_category_network');
 $app['subcategory'] = lang('base_subcategory_settings');
 
 /////////////////////////////////////////////////////////////////////////////
+// Controllers
+/////////////////////////////////////////////////////////////////////////////
+
+$app['controllers']['multiwan']['title'] = lang('multiwan_multiwan');
+$app['controllers']['interfaces']['title'] = lang('multiwan_interfaces');
+$app['controllers']['routes']['title'] = lang('multiwan_source_based_routes');
+$app['controllers']['ports']['title'] = lang('multiwan_destination_port_rules');
+
+/////////////////////////////////////////////////////////////////////////////
 // Packaging
 /////////////////////////////////////////////////////////////////////////////
 

@@ -309,7 +309,7 @@ class MultiWAN extends Firewall
     /**
      * Enable/disable a source-based route rule.
      *
-     * @param boolean $enabled   state
+     * @param boolean $state     state
      * @param string  $address   address
      * @param string  $interface network interface
      *
@@ -317,7 +317,7 @@ class MultiWAN extends Firewall
      * @throws Engine_Exception
      */
 
-    public function toggle_enable_source_based_route($enabled, $address, $interface)
+    public function set_source_based_route_state($state, $address, $interface)
     {
         clearos_profile(__METHOD__, __LINE__);
 
@@ -336,7 +336,7 @@ class MultiWAN extends Firewall
 
         $this->delete_rule($rule);
 
-        if ($enabled)
+        if ($state)
             $rule->enable();
         else
             $rule->disable();

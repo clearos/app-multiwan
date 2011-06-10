@@ -112,9 +112,9 @@ class MultiWAN extends Firewall
     /**
      * Adds a destination port rule to the firewall.
      *
+     * @param string  $name      name
      * @param string  $protocol  protocol
-     * @param integer $from      from port number
-     * @param integer $to        to port number
+     * @param integer $port      port number
      * @param string  $interface network interface
      *
      * @return void
@@ -136,6 +136,35 @@ class MultiWAN extends Firewall
         $rule->set_flags(Rule::SBR_PORT | Rule::ENABLED);
         $rule->set_protocol($rule->convert_protocol_name($protocol));
         $rule->set_port($port);
+        $rule->set_parameter($interface);
+
+        $this->add_rule($rule);
+    }
+
+    /**
+     * Adds a source-based route rule to the firewall.
+     *
+     * @param string $name      rule name
+     * @param string $address   address
+     * @param string $interface network interface
+     *
+     * @return void
+     * @throws Engine_Exception
+     */
+
+    public function add_source_based_route($name, $address, $interface)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        Validation_Exception::is_valid($this->validate_name($name));
+        Validation_Exception::is_valid($this->validate_address($address));
+        Validation_Exception::is_valid($this->validate_interface($interface));
+
+        $rule = new Rule();
+
+        $rule->set_name($name);
+        $rule->set_flags(Rule::SBR_HOST | Rule::ENABLED);
+        $rule->set_address($address);
         $rule->set_parameter($interface);
 
         $this->add_rule($rule);
@@ -171,115 +200,6 @@ class MultiWAN extends Firewall
     }
 
     /**
-     * Enables/disables a destination port rule.
-     *
-     * @param boolean $enabled   state falg
-     * @param string  $protocol  protocol
-     * @param integer $port      port number
-     * @param string  $interface network interface
-     *
-     * @return void
-     * @throws Engine_Exception
-     */
-
-    public function toggle_enable_port_rule($enabled, $protocol, $port, $interface)
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        Validation_Exception::is_valid($this->validate_protocol($protocol));
-        Validation_Exception::is_valid($this->validate_port($port));
-        Validation_Exception::is_valid($this->validate_interface($interface));
-
-        $rule = new Rule();
-
-        $rule->set_flags(Rule::SBR_PORT);
-        $rule->set_protocol($protocol);
-        $rule->set_port($port);
-        $rule->set_parameter($interface);
-
-        if (!($rule = $this->find_rule($rule)))
-            return;
-
-        $this->delete_rule($rule);
-
-        if ($enabled)
-            $rule->enable();
-        else
-            $rule->disable();
-
-        $this->add_rule($rule);
-    }
-
-    /**
-     * Returns an array of destination port rules.
-     *
-     * Info array contains:
-     *  - name
-     *  - protocol
-     *  - port
-     *  - interface
-     *  - enabled
-     *
-     * @return array array list containing destination port rules
-     * @throws Engine_Exception
-     */
-
-    public function get_port_rules()
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        $list = array();
-
-        $rules = $this->get_rules();
-
-        foreach ($rules as $rule) {
-            if (!($rule->get_flags() & (Rule::SBR_PORT)))
-                continue;
-
-            $info = array();
-
-            $info['name'] = $rule->get_name();
-            $info['port'] = $rule->get_port();
-            $info['protocol'] = $rule->get_protocol();
-            $info['interface'] = $rule->get_parameter();
-            $info['enabled'] = $rule->is_enabled();
-
-            $list[] = $info;
-        }
-
-        return $list;
-    }
-
-    /**
-     * Adds a source-based route rule to the firewall.
-     *
-     * @param string  $name      rule name
-     * @param string  $address   address
-     * @param string  $interface network interface
-     *
-     * @return void
-     * @throws Engine_Exception
-     */
-
-    public function add_source_based_route($name, $address, $interface)
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        Validation_Exception::is_valid($this->validate_name($name));
-        Validation_Exception::is_valid($this->validate_address($address));
-        Validation_Exception::is_valid($this->validate_interface($interface));
-
-        $rule = new Rule();
-
-        $rule->set_name($name);
-        $rule->set_flags(Rule::SBR_HOST | Rule::ENABLED);
-        $rule->set_address($address);
-        $rule->set_parameter($interface);
-
-        $this->add_rule($rule);
-    }
-
-    /**
      * Remove a source-based route rule from the firewall.
      *
      * @param string $address   address
@@ -307,56 +227,20 @@ class MultiWAN extends Firewall
     }
 
     /**
-     * Enable/disable a source-based route rule.
-     *
-     * @param boolean $state     state
-     * @param string  $address   address
-     * @param string  $interface network interface
-     *
-     * @return void
-     * @throws Engine_Exception
-     */
-
-    public function set_source_based_route_state($state, $address, $interface)
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        Validation_Exception::is_valid($this->validate_name($name));
-        Validation_Exception::is_valid($this->validate_address($address));
-        Validation_Exception::is_valid($this->validate_interface($interface));
-
-        $rule = new Rule();
-
-        $rule->set_flags(Rule::SBR_HOST);
-        $rule->set_address($address);
-        $rule->set_parameter($interface);
-
-        if (!($rule = $this->find_rule($rule)))
-            return;
-
-        $this->delete_rule($rule);
-
-        if ($state)
-            $rule->enable();
-        else
-            $rule->disable();
-
-        $this->add_rule($rule);
-    }
-
-    /**
-     * Returns an array of source-based route rules.
+     * Returns an array of destination port rules.
      *
      * Info array contains:
      *  - name
+     *  - protocol
+     *  - port
      *  - interface
-     *  - address
      *  - enabled
      *
-     * @return array array list containing source-based route rules
+     * @return array array list containing destination port rules
+     * @throws Engine_Exception
      */
 
-    public function get_source_based_routes()
+    public function get_destination_port_rules()
     {
         clearos_profile(__METHOD__, __LINE__);
 
@@ -365,14 +249,15 @@ class MultiWAN extends Firewall
         $rules = $this->get_rules();
 
         foreach ($rules as $rule) {
-            if (!($rule->get_flags() & (Rule::SBR_HOST)))
+            if (!($rule->get_flags() & (Rule::SBR_PORT)))
                 continue;
 
             $info = array();
 
             $info['name'] = $rule->get_name();
+            $info['port'] = $rule->get_port();
+            $info['protocol'] = $rule->get_protocol();
             $info['interface'] = $rule->get_parameter();
-            $info['address'] = $rule->get_address();
             $info['enabled'] = $rule->is_enabled();
 
             $list[] = $info;
@@ -380,7 +265,6 @@ class MultiWAN extends Firewall
 
         return $list;
     }
-
 
     /**
      * Returns an array of external interfaces.
@@ -427,6 +311,146 @@ class MultiWAN extends Firewall
         }
 
         return 1;
+    }
+
+    /**
+     * Returns an array of source-based route rules.
+     *
+     * Info array contains:
+     *  - name
+     *  - interface
+     *  - address
+     *  - enabled
+     *
+     * @return array array list containing source-based route rules
+     */
+
+    public function get_source_based_routes()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        $list = array();
+
+        $rules = $this->get_rules();
+
+        foreach ($rules as $rule) {
+            if (!($rule->get_flags() & (Rule::SBR_HOST)))
+                continue;
+
+            $info = array();
+
+            $info['name'] = $rule->get_name();
+            $info['interface'] = $rule->get_parameter();
+            $info['address'] = $rule->get_address();
+            $info['enabled'] = $rule->is_enabled();
+
+            $list[] = $info;
+        }
+
+        return $list;
+    }
+
+    /**
+     * Returns the state of multi-WAN.
+     *
+     * @return boolean TRUE if multi-WAN is enabled
+     */
+
+    public function is_enabled()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        $ph = @popen("source " . Firewall::FILE_CONFIG . " && echo \$MULTIPATH", "r");
+        if (!$ph)
+            return FALSE;
+
+        $enabled = FALSE;
+
+        if (chop(fgets($ph)) == Firewall::CONSTANT_ON)
+            $enabled = TRUE;
+
+        if (pclose($ph) != 0)
+            return FALSE;
+
+        return $enabled;
+    }
+
+    /**
+     * Enables/disables a destination port rule.
+     *
+     * @param boolean $state     state falg
+     * @param string  $protocol  protocol
+     * @param integer $port      port number
+     * @param string  $interface network interface
+     *
+     * @return void
+     * @throws Engine_Exception
+     */
+
+    public function set_destination_port_rule_state($state, $protocol, $port, $interface)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        Validation_Exception::is_valid($this->validate_protocol($protocol));
+        Validation_Exception::is_valid($this->validate_port($port));
+        Validation_Exception::is_valid($this->validate_interface($interface));
+
+        $rule = new Rule();
+
+        $rule->set_flags(Rule::SBR_PORT);
+        $rule->set_protocol($protocol);
+        $rule->set_port($port);
+        $rule->set_parameter($interface);
+
+        if (!($rule = $this->find_rule($rule)))
+            return;
+
+        $this->delete_rule($rule);
+
+        if ($state)
+            $rule->enable();
+        else
+            $rule->disable();
+
+        $this->add_rule($rule);
+    }
+
+    /**
+     * Enable/disable a source-based route rule.
+     *
+     * @param boolean $state     state
+     * @param string  $address   address
+     * @param string  $interface network interface
+     *
+     * @return void
+     * @throws Engine_Exception
+     */
+
+    public function set_source_based_route_state($state, $address, $interface)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        Validation_Exception::is_valid($this->validate_name($name));
+        Validation_Exception::is_valid($this->validate_address($address));
+        Validation_Exception::is_valid($this->validate_interface($interface));
+
+        $rule = new Rule();
+
+        $rule->set_flags(Rule::SBR_HOST);
+        $rule->set_address($address);
+        $rule->set_parameter($interface);
+
+        if (!($rule = $this->find_rule($rule)))
+            return;
+
+        $this->delete_rule($rule);
+
+        if ($state)
+            $rule->enable();
+        else
+            $rule->disable();
+
+        $this->add_rule($rule);
     }
 
     /**
@@ -480,121 +504,24 @@ class MultiWAN extends Firewall
     /**
      * Sets the state of multi-WAN mode.
      *
-     * @param boolean $enable enable or diable multi-WAN
+     * @param boolean $state state of multi-WAN
      *
      * @return void
      * @throws Engine_Exception
      */
 
-    public function enable_multi_wan($enable)
+    public function set_multiwan_state($state)
     {
         clearos_profile(__METHOD__, __LINE__);
 
         $file = new File(Firewall::FILE_CONFIG);
 
-        $matches = $file->replace_lines(sprintf("/^%s=/i", Firewall::CONSTANT_MULTIPATH),
-            sprintf("%s=\"%s\"\n", Firewall::CONSTANT_MULTIPATH,
-            ($enable) ? Firewall::CONSTANT_ON : Firewall::CONSTANT_OFF));
-        if ($matches < 1) {
-                $file->add_lines(sprintf("%s=\"%s\"\n", Firewall::CONSTANT_MULTIPATH,
-                    ($enable) ? Firewall::CONSTANT_ON : Firewall::CONSTANT_OFF));
-        }
-    }
+        $enable_value = ($state) ? Firewall::CONSTANT_ON : Firewall::CONSTANT_OFF;
 
-    /**
-     * Returns the state of multi-WAN.
-     *
-     * @return boolean TRUE if multi-WAN is enabled
-     */
+        $matches = $file->replace_lines('/^MULTIPATH=.*/i', "MULTIPATH=\"$enable_value\"\n");
 
-    public function is_enabled()
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        $ph = @popen("source " . Firewall::FILE_CONFIG . " && echo \$MULTIPATH", "r");
-        if (!$ph) return FALSE;
-
-        $enabled = FALSE;
-        if (chop(fgets($ph)) == Firewall::CONSTANT_ON) $enabled = TRUE;
-        if (pclose($ph) != 0) return FALSE;
-
-        return $enabled;
-    }
-
-    /** 
-     * Checks firewall mode
-     * 
-     * If set to DMZ with MultiWAN and no source-based
-     * routes for DMZ networks found, display warning...
-     */
-
-    public function sanity_check_dmz($link = TRUE)
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        // TODO: review an re-enable if necessary
-
-        $firewall = new Firewall();
-
-        try {
-            switch ($firewall->GetMode()) {
-            case Firewall::CONSTANT_AUTO:
-            case Firewall::CONSTANT_GATEWAY:
-                break;
-            default:
-                return;
-            }
-
-            $dmzif = $firewall->GetInterfaceDefinition(Firewall::CONSTANT_DMZ);
-            if (empty($dmzif))
-                return;
-
-            $networks = array();
-            foreach ($dmzif as $iface) {
-                $ifn = new Iface($iface);
-                $info = $ifn->GetInterfaceInfo();
-                $networks[$iface]['network'] =
-                    long2ip(ip2long($info['address']) & ip2long($info['netmask']));
-                $networks[$iface]['netmask'] =
-                    substr_count(decbin(ip2long($info['netmask'])), '1');
-            }
-
-            $rules = $firewall->get_rules();
-            foreach ($rules as $rule) {
-                if (! ($rule->get_flags() & Rule::ENABLED)) continue;
-                if (! ($rule->get_flags() & Rule::SBR_HOST)) continue;
-                if (($slash = strpos($rule->get_address(), '/')) === FALSE) continue;
-
-                $network = substr($rule->get_address(), 0, $slash);
-                $netmask = substr($rule->get_address(), $slash + 1);
-
-                foreach ($networks as $iface => $dmznet) {
-                    if ($dmznet['network'] != $network) continue;
-                    unset($networks[$iface]);
-                }
-            }
-
-            if (count($networks)) {
-                $warning = FIREWALLMULTIWAN_LANG_DMZ_WARNING . '<br><ul>';
-                foreach($networks as $iface => $network) {
-                    $warning .= "<li>$iface: " . $network['network'];
-                    $warning .= '/' . $network['netmask'] . '</li>';
-                }
-                $warning .= '</ul>';
-                if ($link) {
-                    $warning . FIREWALLMULTIWAN_LANG_DMZ_SBR . ' &#160; ';
-                    $warning .= WebButtonContinue("AddSourceBasedRoute");
-
-                    WebFormOpen();
-                }
-
-                echo WebDialogWarning($warning);
-
-                if ($link) WebFormClose();
-            }
-        } catch (Exception $e) {
-            echo WebDialogWarning(clearos_exception_message($e));
-        }
+        if ($matches < 1)
+            $file->add_lines("MULTIPATH=\"$enable_value\"\n");
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -30,6 +30,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
+// D E P E N D E N C I E S
+///////////////////////////////////////////////////////////////////////////////
+
+use \clearos\apps\firewall\Rule_Already_Exists_Exception as Rule_Already_Exists_Exception;
+
+///////////////////////////////////////////////////////////////////////////////
 // C L A S S
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -186,22 +192,18 @@ class Routes extends ClearOS_Controller
 
     function _add_edit($ip, $form_type)
     {
-        // TODO: add "edit" capability
-
         // Load libraries
         //---------------
 
         $this->load->library('multiwan/MultiWAN');
         $this->lang->load('multiwan');
 
-        // Set validation rules
-        //---------------------
-
-        $check_exists = ($form_type === 'add') ? TRUE : FALSE;
+        // Validate
+        //---------
 
         $this->form_validation->set_policy('name', 'multiwan/MultiWAN', 'validate_name');
-        $this->form_validation->set_policy('address', 'multiwan/MultiWAN', 'validate_ip', TRUE, $check_exists);
-        $this->form_validation->set_policy('interface', 'multiwan/MultiWAN', 'validate_interface');
+        $this->form_validation->set_policy('address', 'multiwan/MultiWAN', 'validate_ip', TRUE);
+        $this->form_validation->set_policy('interface', 'multiwan/MultiWAN', 'validate_interface', TRUE);
 
         $form_ok = $this->form_validation->run();
 
@@ -221,6 +223,8 @@ class Routes extends ClearOS_Controller
                 // Return to summary page with status message
                 $this->page->set_status_added();
                 redirect('/multiwan/routes');
+            } catch (Rule_Already_Exists_Exception $e) {
+echo "dude";
             } catch (Exception $e) {
                 $this->page->view_exception($e);
                 return;
@@ -238,8 +242,9 @@ class Routes extends ClearOS_Controller
         }
 
         $data['form_type'] = $form_type;
-        $data['name'] = isset($entry['name']) ? $entry['name'] : '';
+
         $data['address'] = $address;
+        $data['name'] = isset($entry['name']) ? $entry['name'] : '';
         $data['interface'] = isset($entry['interface']) ? $entry['interface'] : '';
 
         // Load the views

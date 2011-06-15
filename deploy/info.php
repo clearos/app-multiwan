@@ -41,5 +41,7 @@ $app['requires'] = array(
 
 $app['core_requires'] = array(
     'app-network-core',
+    'app-firewall-core',
     'iptables',
+    'syswatch',
 );

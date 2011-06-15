@@ -58,25 +58,21 @@ clearos_load_language('multiwan');
 use \clearos\apps\base\File as File;
 use \clearos\apps\firewall\Firewall as Firewall;
 use \clearos\apps\firewall\Rule as Rule;
-use \clearos\apps\network\Iface as Iface;
 use \clearos\apps\network\Iface_Manager as Iface_Manager;
 
 clearos_load_library('base/File');
 clearos_load_library('firewall/Firewall');
 clearos_load_library('firewall/Rule');
-clearos_load_library('network/Iface');
 clearos_load_library('network/Iface_Manager');
 
 // Exceptions
 //-----------
 
-use \clearos\apps\base\Engine_Exception as Engine_Exception;
-use \clearos\apps\base\File_No_Match_Exception as File_No_Match_Exception;
 use \clearos\apps\base\Validation_Exception as Validation_Exception;
+use \clearos\apps\multiwan\MultiWAN_Unknown_Status_Exception as MultiWAN_Unknown_Status_Exception;
 
-clearos_load_library('base/Engine_Exception');
-clearos_load_library('base/File_No_Match_Exception');
 clearos_load_library('base/Validation_Exception');
+clearos_load_library('multiwan/MultiWAN_Unknown_Status_Exception');
 
 ///////////////////////////////////////////////////////////////////////////////
 // C L A S S
@@ -96,6 +92,21 @@ clearos_load_library('base/Validation_Exception');
 
 class MultiWAN extends Firewall
 {
+    ///////////////////////////////////////////////////////////////////////////
+    // C O N S T A N T S
+    ///////////////////////////////////////////////////////////////////////////
+
+    // TODO: move this to /var/clearos/multiwan with new sync tool
+    const FILE_STATE = '/var/lib/syswatch/state';
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // V A R I A B L E S
+    ///////////////////////////////////////////////////////////////////////////////
+
+    protected $ifs_in_use = array();
+    protected $ifs_working = array();
+    protected $is_state_loaded = FALSE;
+
     ///////////////////////////////////////////////////////////////////////////
     // M E T H O D S
     ///////////////////////////////////////////////////////////////////////////
@@ -351,6 +362,44 @@ class MultiWAN extends Firewall
     }
 
     /**
+     * Returns list of working external (WAN) interfaces.
+     *
+     * Syswatch monitors the connections to the Internet.  A connection
+     * is considered online when it can ping the Internet.
+     *
+     * @return array list of working WAN interfaces
+     * @throws Engine_Exception, MultiWAN_Unknown_Status_Exception
+     */
+
+    public function get_working_external_interfaces()
+    {
+        if (!$this->is_state_loaded)
+            $this->_load_status();
+
+        return $this->ifs_working;
+    }
+
+    /**
+     * Returns list of in use external (WAN) interfaces.
+     *
+     * Syswatch monitors the connections to the Internet.  A connection
+     * is considered in use when it can ping the Internet and is actively
+     * used to connect to the Internet.  A WAN interface used for only backup
+     * purposes is only included in this list when non-backup WANs are all down.
+     *
+     * @return array list of in use WAN interfaces
+     * @throws Engine_Exception, MultiWAN_Unknown_Status_Exception
+     */
+
+    public function get_in_use_external_interfaces()
+    {
+        if (!$this->is_state_loaded)
+            $this->_load_status();
+
+        return $this->ifs_in_use;
+    }
+
+    /**
      * Returns the state of multi-WAN.
      *
      * @return boolean TRUE if multi-WAN is enabled
@@ -361,6 +410,7 @@ class MultiWAN extends Firewall
         clearos_profile(__METHOD__, __LINE__);
 
         $ph = @popen("source " . Firewall::FILE_CONFIG . " && echo \$MULTIPATH", "r");
+
         if (!$ph)
             return FALSE;
 
@@ -545,5 +595,47 @@ class MultiWAN extends Firewall
 
         if (($weight < 1) || ($weight > 200))
             return lang('multiwan_weight_is_out_of_range');
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // P R I V A T E  M E T H O D S
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Loads state file.
+     *
+     * @access private
+     *
+     * @return void
+     * @throws Engine_Exception, MultiWAN_Unknown_Status_Exception
+     */
+
+    protected function _load_status()
+    {
+        $file = new File(self::FILE_STATE);
+
+        if (! $file->exists())
+            throw new MultiWAN_Unknown_Status_Exception();
+
+        $lines = $file->get_contents_as_array();
+
+        foreach ($lines as $line) {
+            $match = array();
+            if (preg_match('/^SYSWATCH_WANIF=(.*)/', $line, $match)) {
+                $ethraw = $match[1];
+                $ethraw = preg_replace('/"/', '', $ethraw);
+                $ethlist = explode(' ', $ethraw);
+                $this->ifs_in_use = explode(' ', $ethraw);
+                $this->is_state_loaded = TRUE;
+            }
+
+            if (preg_match('/^SYSWATCH_WANOK=(.*)/', $line, $match)) {
+                $ethraw = $match[1];
+                $ethraw = preg_replace('/"/', '', $ethraw);
+                $ethlist = explode(' ', $ethraw);
+                $this->ifs_working = explode(' ', $ethraw);
+                $this->is_state_loaded = TRUE;
+            }
+        }
     }
 }

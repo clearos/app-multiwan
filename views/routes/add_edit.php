@@ -52,7 +52,7 @@ echo field_input('name', $name, lang('multiwan_nickname'));
 echo field_input('address', $address, lang('network_ip'));
 echo field_simple_dropdown('interface', $interfaces, $interface, lang('network_interface'));
 
-echo button_set(
+echo field_button_set(
     array(
         form_submit_add('submit'),
         anchor_cancel('/app/multiwan/routes/')

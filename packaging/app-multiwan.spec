@@ -23,6 +23,7 @@ License: LGPLv3
 Requires: app-base-core
 Requires: app-network-core
 Requires: app-firewall-core
+Requires: csplugin-routewatch
 Requires: iptables
 Requires: syswatch
 

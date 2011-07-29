@@ -93,7 +93,7 @@ class Routes extends ClearOS_Controller
 
     function add($ip = NULL)
     {
-        $this->_add_edit($ip, 'add');
+        $this->_item($ip, 'add');
     }
 
     /**
@@ -190,7 +190,7 @@ class Routes extends ClearOS_Controller
      * @return view
      */
 
-    function _add_edit($ip, $form_type)
+    function _item($ip, $form_type)
     {
         // Load libraries
         //---------------
@@ -224,7 +224,6 @@ class Routes extends ClearOS_Controller
                 $this->page->set_status_added();
                 redirect('/multiwan/routes');
             } catch (Rule_Already_Exists_Exception $e) {
-echo "dude";
             } catch (Exception $e) {
                 $this->page->view_exception($e);
                 return;
@@ -235,17 +234,15 @@ echo "dude";
         //------------------- 
 
         try {
-            $data['interfaces'] = $this->multiwan->get_external_interfaces();
+            $data['routes'] = $this->multiwan->get_source_based_routes();
+            $data['interfaces'] = $this->multiwan->get_in_use_external_interfaces();
+print_r($data);
         } catch (Exception $e) {
             $this->page->view_exception($e);
             return;
         }
 
         $data['form_type'] = $form_type;
-
-        $data['address'] = $address;
-        $data['name'] = isset($entry['name']) ? $entry['name'] : '';
-        $data['interface'] = isset($entry['interface']) ? $entry['interface'] : '';
 
         // Load the views
         //---------------

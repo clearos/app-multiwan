@@ -253,6 +253,7 @@ class MultiWAN extends Firewall
             $info['name'] = $rule->get_name();
             $info['port'] = $rule->get_port();
             $info['protocol'] = $rule->get_protocol();
+            $info['protocol_name'] = $rule->get_protocol_name();
             $info['interface'] = $rule->get_parameter();
             $info['enabled'] = $rule->is_enabled();
 

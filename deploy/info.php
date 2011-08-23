@@ -46,3 +46,14 @@ $app['core_requires'] = array(
     'iptables',
     'syswatch',
 );
+
+$app['core_file_manifest'] = array(
+    'routewatch-multiwan.conf' => array(
+        'target' => '/etc/clearsync.d/routewatch-multiwan.conf',
+        'mode' => '0644',
+        'owner' => 'root',
+        'group' => 'root',
+        'config' => TRUE,
+        'config_params' => 'noreplace',
+    ),
+);

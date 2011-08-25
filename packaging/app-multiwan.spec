@@ -40,6 +40,7 @@ This package provides the core API and libraries.
 mkdir -p -m 755 %{buildroot}/usr/clearos/apps/multiwan
 cp -r * %{buildroot}/usr/clearos/apps/multiwan/
 
+install -D -m 0644 packaging/routewatch-multiwan.conf %{buildroot}/etc/clearsync.d/routewatch-multiwan.conf
 
 %post
 logger -p local6.notice -t installer 'app-multiwan - installing'
@@ -82,3 +83,4 @@ exit 0
 /usr/clearos/apps/multiwan/deploy
 /usr/clearos/apps/multiwan/language
 /usr/clearos/apps/multiwan/libraries
+%config(noreplace) /etc/clearsync.d/routewatch-multiwan.conf

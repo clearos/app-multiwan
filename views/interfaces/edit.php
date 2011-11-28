@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Multi-WAN controller.
+ * MultiWAN item view.
  *
- * @category   Apps
+ * @category   ClearOS
  * @package    MultiWAN
- * @subpackage Controllers
+ * @subpackage Views
  * @author     ClearFoundation <developer@clearfoundation.com>
  * @copyright  2006-2011 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
@@ -25,47 +25,40 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// C L A S S
+// Load dependencies
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * Multi-WAN controller.
- *
- * @category   Apps
- * @package    MultiWAN
- * @subpackage Controllers
- * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
- * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
- * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
- */
+$this->lang->load('multiwan');
+$this->lang->load('network');
 
-class MultiWAN extends ClearOS_Controller
-{
-    /**
-     * Multi-WAN overview.
-     *
-     * @return view
-     */
+///////////////////////////////////////////////////////////////////////////////
+// Form handler
+///////////////////////////////////////////////////////////////////////////////
 
-    function index()
-    {
-        // Load libraries
-        //---------------
+$buttons = array(
+    form_submit_update('submit'),
+    anchor_cancel('/app/multiwan/'),
+);
 
-        $this->lang->load('multiwan');
+$weights = array(1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,75,100,200);
 
-        // Load views
-        //-----------
+///////////////////////////////////////////////////////////////////////////////
+// Form
+///////////////////////////////////////////////////////////////////////////////
 
-        // $views = array('incoming_firewall/allow', 'incoming_firewall/outgoing');
-        $views = array('multiwan/interfaces', 'multiwan/routes');
+echo form_open('/multiwan/interfaces/edit/' . $iface);
+echo form_header(lang('multiwan_weight'));
 
-        $this->page->view_forms($views, lang('multiwan_multiwan'));
-    }
-}
+echo field_input('iface', $iface, lang('network_interface'), TRUE);
+echo field_input('address', $details['address'], lang('network_ip'), TRUE);
+echo field_simple_dropdown('weight', $weights, $details['weight'], lang('multiwan_weight'));
+
+echo field_button_set($buttons);
+
+echo form_footer();
+echo form_close();

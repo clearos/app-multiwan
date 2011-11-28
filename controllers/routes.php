@@ -35,6 +35,8 @@
 
 use \clearos\apps\firewall\Rule_Already_Exists_Exception as Rule_Already_Exists_Exception;
 
+use \Exception as Exception;
+
 ///////////////////////////////////////////////////////////////////////////////
 // C L A S S
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,7 +88,7 @@ class Routes extends ClearOS_Controller
     /**
      * Add entry view.
      *
-     * @param string $ip        IP address
+     * @param string $ip IP address
      *
      * @return view
      */
@@ -99,7 +101,8 @@ class Routes extends ClearOS_Controller
     /**
      * Delete entry view.
      *
-     * @param string $ip IP address
+     * @param string $ip        IP address
+     * @param string $interface interface
      *
      * @return view
      */
@@ -220,7 +223,6 @@ class Routes extends ClearOS_Controller
                 $this->multiwan->add_source_based_route($name, $ip, $interface);
                 $this->multiwan->reset();
 
-                // Return to summary page with status message
                 $this->page->set_status_added();
                 redirect('/multiwan/routes');
             } catch (Rule_Already_Exists_Exception $e) {
@@ -236,7 +238,6 @@ class Routes extends ClearOS_Controller
         try {
             $data['routes'] = $this->multiwan->get_source_based_routes();
             $data['interfaces'] = $this->multiwan->get_in_use_external_interfaces();
-print_r($data);
         } catch (Exception $e) {
             $this->page->view_exception($e);
             return;

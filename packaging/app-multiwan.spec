@@ -14,7 +14,7 @@ Requires: app-base
 Requires: app-network
 
 %description
-Translation missing (multiwan_app_long_description)
+Multi-WAN description...
 
 %package core
 Summary: Multi-WAN - APIs and install
@@ -28,7 +28,7 @@ Requires: iptables
 Requires: syswatch
 
 %description core
-Translation missing (multiwan_app_long_description)
+Multi-WAN description...
 
 This package provides the core API and libraries.
 
@@ -40,6 +40,7 @@ This package provides the core API and libraries.
 mkdir -p -m 755 %{buildroot}/usr/clearos/apps/multiwan
 cp -r * %{buildroot}/usr/clearos/apps/multiwan/
 
+install -D -m 0644 packaging/multiwan.conf %{buildroot}/etc/clearos/multiwan.conf
 install -D -m 0644 packaging/routewatch-multiwan.conf %{buildroot}/etc/clearsync.d/routewatch-multiwan.conf
 
 %post
@@ -83,4 +84,5 @@ exit 0
 /usr/clearos/apps/multiwan/deploy
 /usr/clearos/apps/multiwan/language
 /usr/clearos/apps/multiwan/libraries
+%config(noreplace) /etc/clearos/multiwan.conf
 %config(noreplace) /etc/clearsync.d/routewatch-multiwan.conf

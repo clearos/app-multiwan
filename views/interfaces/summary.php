@@ -41,9 +41,11 @@ $this->lang->load('multiwan');
 ///////////////////////////////////////////////////////////////////////////////
 
 $headers = array(
-	lang('network_interface'),
-	lang('network_network'),
-	lang('base_status')
+    '',
+	lang('network_ip'),
+	lang('multiwan_network_status'),
+	lang('multiwan_multiwan_status'),
+	lang('multiwan_weight')
 );
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,36 +58,26 @@ $anchors = array();
 // Items
 ///////////////////////////////////////////////////////////////////////////////
 
-foreach ($subnets as $interface => $subnetinfo) {
+foreach ($interfaces as $iface => $details) {
 
-	if (! $subnetinfo["isvalid"]) {
-		$status = "<span class='alert'>" . lang('base_invalid') . "</span>";
-		$action = "/app/dhcp/subnets/edit/" . $interface;
-		$buttons = array(anchor_delete('/app/dhcp/subnets/delete/' . $interface));
-	} else if ($subnetinfo["isconfigured"]) {
-		$status = "<span class='ok'>" . lang('base_enabled') . "</span>";
-		$action = "/app/dhcp/subnets/edit/" . $interface;
-		$buttons = array(
-				anchor_edit('/app/dhcp/subnets/edit/' . $interface),
-				anchor_delete('/app/dhcp/subnets/delete/' . $interface)
-			);
-	} else {
-		$status = "<span class='alert'>" . lang('base_disabled') . "</span>";
-		$action = "/app/dhcp/subnets/add/" . $interface;
-		$buttons = array(anchor_add('/app/dhcp/subnets/add/' . $interface));
-	}
+    // FIXME: need a theme element here to highlight good/bad status
+    $in_use = ($details['in_use']) ? lang('multiwan_in_use') : lang('multiwan_offline');
+    $working = ($details['working']) ? lang('multiwan_online') : lang('multiwan_offline');
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Item details
-    ///////////////////////////////////////////////////////////////////////////
+	$item['title'] = "$iface / " .  $details['address'];
+	$item['action'] = "/app/multiwan/interfaces/edit/" . $iface;
+	$item['anchors'] = button_set(
+        array(
+            anchor_edit('/app/multiwan/interfaces/edit/' . $iface),
+        )
+    );
 
-	$item['title'] = "$interface / " .  $subnetinfo['network'];
-	$item['action'] = $action;
-	$item['anchors'] = button_set($buttons);
 	$item['details'] = array(
-		$interface,
-		$subnetinfo['network'],
-		$status
+		$iface,
+		$details['address'],
+        $working,
+        $in_use,
+		$details['weight']
 	);
 
 	$items[] = $item;

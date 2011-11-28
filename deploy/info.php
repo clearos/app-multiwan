@@ -11,14 +11,13 @@ $app['vendor'] = 'ClearFoundation';
 $app['packager'] = 'ClearFoundation';
 $app['license'] = 'GPLv3';
 $app['license_core'] = 'LGPLv3';
-$app['summary'] = lang('multiwan_app_summary');
-$app['description'] = lang('multiwan_app_long_description');
+$app['description'] = lang('multiwan_app_description');
 
 /////////////////////////////////////////////////////////////////////////////
 // App name and categories
 /////////////////////////////////////////////////////////////////////////////
 
-$app['name'] = lang('multiwan_multiwan');
+$app['name'] = lang('multiwan_app_name');
 $app['category'] = lang('base_category_network');
 $app['subcategory'] = lang('base_subcategory_settings');
 
@@ -50,6 +49,14 @@ $app['core_requires'] = array(
 $app['core_file_manifest'] = array(
     'routewatch-multiwan.conf' => array(
         'target' => '/etc/clearsync.d/routewatch-multiwan.conf',
+        'mode' => '0644',
+        'owner' => 'root',
+        'group' => 'root',
+        'config' => TRUE,
+        'config_params' => 'noreplace',
+    ),
+    'multiwan.conf' => array(
+        'target' => '/etc/clearos/multiwan.conf',
         'mode' => '0644',
         'owner' => 'root',
         'group' => 'root',

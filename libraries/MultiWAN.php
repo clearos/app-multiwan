@@ -59,20 +59,22 @@ use \clearos\apps\base\File as File;
 use \clearos\apps\firewall\Firewall as Firewall;
 use \clearos\apps\firewall\Rule as Rule;
 use \clearos\apps\network\Iface_Manager as Iface_Manager;
+use \clearos\apps\network\Network_Status as Network_Status;
 
 clearos_load_library('base/File');
 clearos_load_library('firewall/Firewall');
 clearos_load_library('firewall/Rule');
 clearos_load_library('network/Iface_Manager');
+clearos_load_library('network/Network_Status');
 
 // Exceptions
 //-----------
 
+use \clearos\apps\base\File_Not_Found_Exception as File_Not_Found_Exception;
 use \clearos\apps\base\Validation_Exception as Validation_Exception;
-use \clearos\apps\multiwan\Network_Status_Unknown_Exception as Network_Status_Unknown_Exception;
 
+clearos_load_library('base/File_Not_Found_Exception');
 clearos_load_library('base/Validation_Exception');
-clearos_load_library('multiwan/Network_Status_Unknown_Exception');
 
 ///////////////////////////////////////////////////////////////////////////////
 // C L A S S
@@ -92,6 +94,16 @@ clearos_load_library('multiwan/Network_Status_Unknown_Exception');
 
 class MultiWAN extends Firewall
 {
+    ///////////////////////////////////////////////////////////////////////////
+    // C O N S T A N T S
+    ///////////////////////////////////////////////////////////////////////////
+
+    const FILE_CONFIG = '/etc/clearos/multiwan.conf';
+    const COMMAND_FIREWALL_START = '/usr/sbin/firewall-start';
+    const CONSTANT_ON = 'on';
+    const CONSTANT_OFF = 'off';
+    const DEFAULT_WEIGHT = 1;
+
     ///////////////////////////////////////////////////////////////////////////
     // M E T H O D S
     ///////////////////////////////////////////////////////////////////////////
@@ -264,9 +276,28 @@ class MultiWAN extends Firewall
     }
 
     /**
+     * Returns interface details.
+     *
+     * @param string $iface interface
+     *
+     * @return array list of external interfaces
+     */
+
+    public function get_external_interface($iface)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        Validation_Exception::is_valid($this->validate_interface($iface));
+
+        $all_ifs = $this->get_external_interfaces();
+
+        return $all_ifs[$iface];
+    }
+
+    /**
      * Returns an array of external interfaces.
      *
-     * @return array array list containing external interfaces
+     * @return array list of external interfaces
      */
 
     public function get_external_interfaces()
@@ -275,7 +306,22 @@ class MultiWAN extends Firewall
 
         $iface_manager = new Iface_Manager();
 
-        return $iface_manager->get_external_interfaces();
+        $iface_details = $iface_manager->get_interface_details();
+        $ifaces = $iface_manager->get_external_interfaces();
+        $working = $this->get_working_external_interfaces();
+        $in_use = $this->get_in_use_external_interfaces();
+        
+
+        $external = array();
+
+        foreach ($ifaces as $iface) {
+            $external[$iface]['working'] = (in_array($iface, $working)) ? TRUE : FALSE;
+            $external[$iface]['in_use'] = (in_array($iface, $in_use)) ? TRUE : FALSE;
+            $external[$iface]['address'] = (isset($iface_details[$iface]['address'])) ? $iface_details[$iface]['address'] : '';
+            $external[$iface]['weight'] = $this->get_interface_weight($iface);
+        }
+
+        return $external;
     }
 
     /**
@@ -290,11 +336,11 @@ class MultiWAN extends Firewall
     {
         clearos_profile(__METHOD__, __LINE__);
 
-        // TODO: migrate to /etc/multiwan
+        // TODO: apply file class and coding standards
 
         $list = array();
 
-        $ph = @popen("source " . Firewall::FILE_CONFIG . " && echo \$MULTIPATH_WEIGHTS", "r");
+        $ph = @popen("source " . self::FILE_CONFIG . " && echo \$MULTIPATH_WEIGHTS", "r");
         if(!$ph) return $list;
 
         $list = explode(" ", chop(fgets($ph)));
@@ -307,7 +353,7 @@ class MultiWAN extends Firewall
             }
         }
 
-        return 1;
+        return self::DEFAULT_WEIGHT;
     }
 
     /**
@@ -395,14 +441,14 @@ class MultiWAN extends Firewall
     {
         clearos_profile(__METHOD__, __LINE__);
 
-        $ph = @popen("source " . Firewall::FILE_CONFIG . " && echo \$MULTIPATH", "r");
+        $ph = @popen("source " . self::FILE_CONFIG . " && echo \$MULTIPATH", "r");
 
         if (!$ph)
             return FALSE;
 
         $enabled = FALSE;
 
-        if (chop(fgets($ph)) == Firewall::CONSTANT_ON)
+        if (chop(fgets($ph)) == self::CONSTANT_ON)
             $enabled = TRUE;
 
         if (pclose($ph) != 0)
@@ -509,29 +555,29 @@ class MultiWAN extends Firewall
         Validation_Exception::is_valid($this->validate_interface($interface));
         Validation_Exception::is_valid($this->validate_weight($weight));
 
-        // Extra validation
-        //-----------------
-
-        $wanif_list = $this->get_external_interfaces();
-
-        if (! in_array($interface, $wanif_list))
-            throw new Validation_Exception(lang('multiwan_weight_must_be_set_on_external_network_interface'));
-
         // Set configuration
         //------------------
 
         $weights = "$interface|$weight";
 
-        foreach ($wanif_list as $wanif) {
-            if ($interface == $wanif)
+        $ifaces = $this->get_external_interfaces();
+        
+        foreach ($ifaces as $iface => $details) {
+            if ($interface == $iface)
                 continue;
-
-            $weights = "$weights $wanif|" . $this->get_interface_weight($wanif);
+            
+            $weights = "$weights $iface|" . $details['weight'];
         }
 
-        $config = new File(Firewall::FILE_CONFIG);
+        $config = new File(self::FILE_CONFIG);
+        $matches = 0;
 
-        $matches = $config->replace_lines("/^MULTIPATH_WEIGHTS=.*/", "MULTIPATH_WEIGHTS=\"$weights\"\n");
+        try {
+            $matches = $config->replace_lines("/^MULTIPATH_WEIGHTS=.*/", "MULTIPATH_WEIGHTS=\"$weights\"\n");
+        } catch (File_Not_Found_Exception $e) {
+            // Not fatal
+            $config->create('root', 'root', '0644');
+        }
 
         if ($matches < 1)
             $config->add_lines("MULTIPATH_WEIGHTS=\"$weights\"\n");
@@ -550,9 +596,9 @@ class MultiWAN extends Firewall
     {
         clearos_profile(__METHOD__, __LINE__);
 
-        $file = new File(Firewall::FILE_CONFIG);
+        $file = new File(self::FILE_CONFIG);
 
-        $enable_value = ($state) ? Firewall::CONSTANT_ON : Firewall::CONSTANT_OFF;
+        $enable_value = ($state) ? self::CONSTANT_ON : self::CONSTANT_OFF;
 
         $matches = $file->replace_lines('/^MULTIPATH=.*/i', "MULTIPATH=\"$enable_value\"\n");
 

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Multi-WAN source-based routes controller.
+ * Multi-WAN destination port rules controller.
  *
  * @category   Apps
  * @package    MultiWAN
  * @subpackage Controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -41,19 +41,20 @@ use \Exception as Exception;
 // C L A S S
 ///////////////////////////////////////////////////////////////////////////////
 
+
 /**
- * Multi-WAN source-based routes controller.
+ * Multi-WAN destination port rules controller.
  *
  * @category   Apps
  * @package    MultiWAN
  * @subpackage Controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
 
-class Routes extends ClearOS_Controller
+class Ports extends ClearOS_Controller
 {
     /**
      * Source-based routes summary view.
@@ -73,7 +74,7 @@ class Routes extends ClearOS_Controller
         //---------------
 
         try {
-            $data['routes'] = $this->multiwan->get_source_based_routes();
+            $data['ports'] = $this->multiwan->get_destination_port_rules();
         } catch (Exception $e) {
             $this->page->view_exception($e);
             return;
@@ -82,36 +83,37 @@ class Routes extends ClearOS_Controller
         // Load views
         //-----------
 
-        $this->page->view_form('multiwan/routes/summary', $data, lang('multiwan_source_based_routes'));
+        $this->page->view_form('multiwan/ports/summary', $data, lang('multiwan_destination_port_rules'));
     }
 
     /**
      * Add entry view.
      *
-     * @param string $ip IP address
+     * @param string $port port
      *
      * @return view
      */
 
-    function add($ip = NULL)
+    function add()
     {
-        $this->_item($ip, 'add');
+        $this->_item('add');
     }
 
     /**
      * Delete entry view.
      *
-     * @param string $ip        IP address
+     * @param string $protocol  protocol
+     * @param string $port      port
      * @param string $interface interface
      *
      * @return view
      */
 
-    function delete($ip = NULL, $interface = NULL)
+    function delete($protocol, $port, $interface)
     {
-        $confirm_uri = '/app/multiwan/routes/destroy/' . $ip . '/' . $interface;
-        $cancel_uri = '/app/multiwan/routes';
-        $items = array($ip);
+        $confirm_uri = '/app/multiwan/ports/destroy/' . $protocol . '/' . $port . '/' . $interface;
+        $cancel_uri = '/app/multiwan/ports';
+        $items = array($protocol . ' ' . $port);
 
         $this->page->view_confirm_delete($confirm_uri, $cancel_uri, $items);
     }
@@ -119,13 +121,14 @@ class Routes extends ClearOS_Controller
     /**
      * Destroys entry.
      *
-     * @param string $ip        IP address
+     * @param string $protocol  protocol
+     * @param string $port      port
      * @param string $interface network interface
      *
      * @return view
      */
 
-    function destroy($ip = NULL, $interface = NULL)
+    function destroy($protocol, $port, $interface)
     {
         // Load libraries
         //---------------
@@ -136,11 +139,11 @@ class Routes extends ClearOS_Controller
         //--------------
 
         try {
-            $this->multiwan->delete_source_based_route($ip, $interface);
+            $this->multiwan->delete_destination_port_rule($protocol, $port, $interface);
             $this->multiwan->reset();
 
             $this->page->set_status_deleted();
-            redirect('/multiwan');
+            redirect('/multiwan/ports');
         } catch (Exception $e) {
             $this->page->view_exception($e);
             return;
@@ -150,14 +153,15 @@ class Routes extends ClearOS_Controller
     /**
      * Sets the state of the entry.
      *
-     * @param string $type      enable or disable
-     * @param string $ip        IP address
+     * @param string $state     enable or disable
+     * @param string $protocol  protocol
+     * @param string $port      port
      * @param string $interface network interface
      *
      * @return view
      */
 
-    function set_state($type, $ip = NULL, $interface = NULL)
+    function set_state($state, $protocol, $port, $interface)
     {
         // Load libraries
         //---------------
@@ -168,12 +172,12 @@ class Routes extends ClearOS_Controller
         //--------------
 
         try {
-            $state = ($type === 'enable') ? TRUE : FALSE;
-            $this->multiwan->set_source_based_route_state($state, $ip, $interface);
+            $state = ($state === 'enable') ? TRUE : FALSE;
+            $this->multiwan->set_destination_port_rule_state($state, $protocol, $port, $interface);
             $this->multiwan->reset();
 
             $this->page->set_status_updated();
-            redirect('/multiwan');
+            redirect('/multiwan/ports');
         } catch (Exception $e) {
             $this->page->view_exception($e);
             return;
@@ -187,13 +191,13 @@ class Routes extends ClearOS_Controller
     /**
      * Common add/edit form handler.
      *
-     * @param string $ip        IP address
      * @param string $form_type form type
+     * @param string $ip        IP address
      *
      * @return view
      */
 
-    function _item($ip, $form_type)
+    function _item($form_type)
     {
         // Load libraries
         //---------------
@@ -204,8 +208,9 @@ class Routes extends ClearOS_Controller
         // Validate
         //---------
 
-        $this->form_validation->set_policy('name', 'multiwan/MultiWAN', 'validate_name');
-        $this->form_validation->set_policy('address', 'multiwan/MultiWAN', 'validate_ip', TRUE);
+        $this->form_validation->set_policy('name', 'multiwan/MultiWAN', 'validate_name', TRUE);
+        $this->form_validation->set_policy('port', 'multiwan/MultiWAN', 'validate_port', TRUE);
+        $this->form_validation->set_policy('protocol', 'multiwan/MultiWAN', 'validate_protocol', TRUE);
         $this->form_validation->set_policy('interface', 'multiwan/MultiWAN', 'validate_interface', TRUE);
 
         $form_ok = $this->form_validation->run();
@@ -215,16 +220,17 @@ class Routes extends ClearOS_Controller
 
         if ($this->input->post('submit') && ($form_ok === TRUE)) {
 
-            $ip = $this->input->post('address');
             $name = $this->input->post('name');
+            $port = $this->input->post('port');
+            $protocol = $this->input->post('protocol');
             $interface = $this->input->post('interface');
 
             try {
-                $this->multiwan->add_source_based_route($name, $ip, $interface);
+                $this->multiwan->add_destination_port_rule($name, $protocol, $port, $interface);
                 $this->multiwan->reset();
 
                 $this->page->set_status_added();
-                redirect('/multiwan/routes');
+                redirect('/multiwan/ports');
             } catch (Rule_Already_Exists_Exception $e) {
             } catch (Exception $e) {
                 $this->page->view_exception($e);
@@ -236,7 +242,8 @@ class Routes extends ClearOS_Controller
         //------------------- 
 
         try {
-            $data['routes'] = $this->multiwan->get_source_based_routes();
+            $data['ports'] = $this->multiwan->get_destination_port_rules();
+            $data['protocols'] = $this->multiwan->get_basic_protocols();
             $data['interfaces'] = $this->multiwan->get_in_use_external_interfaces();
         } catch (Exception $e) {
             $this->page->view_exception($e);
@@ -248,6 +255,6 @@ class Routes extends ClearOS_Controller
         // Load the views
         //---------------
 
-        $this->page->view_form('multiwan/routes/item', $data, lang('multiwan_source_based_routes'));
+        $this->page->view_form('multiwan/ports/item', $data, lang('multiwan_destination_port_rule'));
     }
 }

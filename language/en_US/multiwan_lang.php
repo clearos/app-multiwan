@@ -15,3 +15,5 @@ $lang['multiwan_weight'] = 'Weight';
 $lang['multiwan_in_use'] = 'In Use';
 $lang['multiwan_offline'] = 'Offline';
 $lang['multiwan_online'] = 'Online';
+$lang['multiwan_weight_invalid'] = 'Multi-WAN weight is invalid.';
+$lang['multiwan_weight_out_of_range'] = 'Multi-WAN weight is out of range.';

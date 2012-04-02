@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Multiwan interfaces view.
+ * Multi-WAN destination port rules summary view.
  *
  * @category   ClearOS
  * @package    MultiWAN
  * @subpackage Views
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -29,11 +29,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Load dependencies
 ///////////////////////////////////////////////////////////////////////////////
 
-$this->lang->load('base');
+$this->lang->load('network');
 $this->lang->load('multiwan');
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,57 +42,53 @@ $this->lang->load('multiwan');
 ///////////////////////////////////////////////////////////////////////////////
 
 $headers = array(
-    '',
-	lang('network_ip'),
-	lang('multiwan_network_status'),
-	lang('multiwan_multiwan_status'),
-	lang('multiwan_weight')
+    lang('multiwan_nickname'),
+    lang('network_protocol'),
+    lang('network_port'),
+    lang('network_interface'),
 );
 
 ///////////////////////////////////////////////////////////////////////////////
-// Anchors 
+// Anchors
 ///////////////////////////////////////////////////////////////////////////////
 
-$anchors = array();
+$anchors = array(anchor_add('/app/multiwan/ports/add'));
 
 ///////////////////////////////////////////////////////////////////////////////
 // Items
 ///////////////////////////////////////////////////////////////////////////////
 
-foreach ($interfaces as $iface => $details) {
+// Array ( [0] => Array ( [name] => bob [port] => 3333 [protocol] => 6 [protocol_name] => TCP [interface] => eth1 [enabled] => 268435456 ) )
+foreach ($ports as $rule) {
+    $status = ($rule['enabled']) ? 'disable' : 'enable';
+    $anchor = ($rule['enabled']) ? 'anchor_disable' : 'anchor_enable';
+    $key = $rule['protocol_name'] . '/' . $rule['port'] . '/' . $rule['interface'];
 
-    // TODO: need a theme element here to highlight good/bad status
-    $in_use = ($details['in_use']) ? lang('multiwan_in_use') : lang('multiwan_offline');
-    $working = ($details['working']) ? lang('multiwan_online') : lang('multiwan_offline');
-
-	$item['title'] = "$iface / " .  $details['address'];
-	$item['action'] = "/app/multiwan/interfaces/edit/" . $iface;
-	$item['anchors'] = button_set(
+    $item['title'] = $rule['name'];
+    $item['action'] = '/app/multiwan/ports/edit/' . $key;
+    $item['anchors'] = button_set(
         array(
-            anchor_edit('/app/multiwan/interfaces/edit/' . $iface),
+            $anchor('/app/multiwan/ports/set_state/' . $status . '/' . $key, 'high'),
+            anchor_delete('/app/multiwan/ports/delete/' . $key, 'low'),
         )
     );
+    $item['details'] = array(
+        $rule['name'],
+        $rule['protocol_name'],
+        $rule['port'],
+        $rule['interface'],
+    );
 
-	$item['details'] = array(
-		$iface,
-		$details['address'],
-        $working,
-        $in_use,
-		$details['weight']
-	);
-
-	$items[] = $item;
+    $items[] = $item;
 }
-
-sort($items);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Summary table
 ///////////////////////////////////////////////////////////////////////////////
 
 echo summary_table(
-	lang('multiwan_interfaces'),
-	$anchors,
-	$headers,
-	$items
+    lang('multiwan_destination_port_rules'),
+    $anchors,
+    $headers,
+    $items
 );

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Multi-WAN controller.
+ * Multi-WAN destination port rules view.
  *
- * @category   Apps
+ * @category   ClearOS
  * @package    MultiWAN
- * @subpackage Controllers
+ * @subpackage Views
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -25,46 +25,35 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// C L A S S
+// Load dependencies
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * Multi-WAN controller.
- *
- * @category   Apps
- * @package    MultiWAN
- * @subpackage Controllers
- * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
- * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
- * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
- */
+$this->load->language('multiwan');
+$this->load->language('network');
 
-class MultiWAN extends ClearOS_Controller
-{
-    /**
-     * Multi-WAN overview.
-     *
-     * @return view
-     */
+///////////////////////////////////////////////////////////////////////////////
+// Form
+///////////////////////////////////////////////////////////////////////////////
 
-    function index()
-    {
-        // Load libraries
-        //---------------
+echo form_open('/multiwan/ports/add');
+echo form_header(lang('multiwan_destination_port_rule'));
 
-        $this->lang->load('multiwan');
+echo field_input('name', $name, lang('multiwan_nickname'));
+echo field_simple_dropdown('protocol', $protocols, $protocol, lang('network_protocol'));
+echo field_input('port', $port, lang('network_port'));
+echo field_simple_dropdown('interface', $interfaces, $interface, lang('network_interface'));
 
-        // Load views
-        //-----------
+echo field_button_set(
+    array(
+        form_submit_add('submit'),
+        anchor_cancel('/app/multiwan/ports')
+    )
+);
 
-        $views = array('multiwan/interfaces', 'multiwan/routes', 'multiwan/ports');
-
-        $this->page->view_forms($views, lang('multiwan_multiwan'));
-    }
-}
+echo form_footer();
+echo form_close();

@@ -200,7 +200,7 @@ class MultiWAN extends Firewall
         $rule = new Rule();
 
         $rule->set_flags(Rule::SBR_PORT);
-        $rule->set_protocol($protocol);
+        $rule->set_protocol($rule->convert_protocol_name($protocol));
         $rule->set_port($port);
         $rule->set_parameter($interface);
 
@@ -480,7 +480,7 @@ class MultiWAN extends Firewall
         $rule = new Rule();
 
         $rule->set_flags(Rule::SBR_PORT);
-        $rule->set_protocol($protocol);
+        $rule->set_protocol($rule->convert_protocol_name($protocol));
         $rule->set_port($port);
         $rule->set_parameter($interface);
 
@@ -623,9 +623,9 @@ class MultiWAN extends Firewall
         clearos_profile(__METHOD__, __LINE__);
 
         if (! preg_match('/^\d+$/', $weight))
-            return lang('multiwan_weight_is_invalid');
+            return lang('multiwan_weight_invalid');
 
         if (($weight < 1) || ($weight > 200))
-            return lang('multiwan_weight_is_out_of_range');
+            return lang('multiwan_weight_out_of_range');
     }
 }

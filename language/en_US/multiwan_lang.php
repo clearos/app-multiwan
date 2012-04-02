@@ -1,6 +1,6 @@
 <?php
 
-$lang['multiwan_app_description'] = 'Multi-WAN description...'; // FIXME
+$lang['multiwan_app_description'] = 'The multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection to the Internet, including load balancing, packet segregation and automatic failover.';
 $lang['multiwan_app_name'] = 'Multi-WAN';
 $lang['multiwan_multiwan'] = 'Multi-WAN';
 $lang['multiwan_interfaces'] = 'Interfaces';

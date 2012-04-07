@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Reload clearsyncd
+#------------------
+
+/sbin/service clearsyncd condrestart >/dev/null 2>&1
+

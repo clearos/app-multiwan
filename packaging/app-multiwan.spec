@@ -1,7 +1,7 @@
 
 Name: app-multiwan
 Epoch: 1
-Version: 1.0.10
+Version: 1.1.0
 Release: 1%{dist}
 Summary: Multi-WAN
 License: GPLv3
@@ -13,10 +13,10 @@ Requires: app-base
 Requires: app-network
 
 %description
-Multi-WAN description...
+The multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection to the Internet, including load balancing, packet segregation and automatic failover.
 
 %package core
-Summary: Multi-WAN - APIs and install
+Summary: Multi-WAN - Core
 License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
@@ -27,7 +27,7 @@ Requires: iptables
 Requires: syswatch
 
 %description core
-Multi-WAN description...
+The multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection to the Internet, including load balancing, packet segregation and automatic failover.
 
 This package provides the core API and libraries.
 

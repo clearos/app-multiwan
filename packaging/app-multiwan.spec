@@ -13,7 +13,7 @@ Requires: app-base
 Requires: app-network
 
 %description
-The multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection to the Internet, including load balancing, packet segregation and automatic failover.
+The Multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection, including load balancing, packet segregation and automatic failover.
 
 %package core
 Summary: Multi-WAN - Core
@@ -27,7 +27,7 @@ Requires: iptables
 Requires: syswatch
 
 %description core
-The multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection to the Internet, including load balancing, packet segregation and automatic failover.
+The Multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection, including load balancing, packet segregation and automatic failover.
 
 This package provides the core API and libraries.
 

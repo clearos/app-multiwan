@@ -59,17 +59,20 @@ $anchors = array(anchor_add('/app/multiwan/routes/add'));
 
 foreach ($routes as $rule) {
 
+    // Deal with embedded / in network notation
+    $address = preg_replace('/\//', '-', $rule['address']);
+
     // Order IPs in human-readable way
     $order_ip = "<span style='display: none'>" . sprintf("%032b", ip2long($rule['address'])) . "</span>" . $rule['address'];
     $status = ($rule['enabled']) ? 'disable' : 'enable';
     $anchor = ($rule['enabled']) ? 'anchor_disable' : 'anchor_enable';
 
     $item['title'] = $rule['name'];
-    $item['action'] = '/app/multiwan/routes/edit/' . $rule['address'];
+    $item['action'] = '/app/multiwan/routes/edit/' . $$address;
     $item['anchors'] = button_set(
         array(
-            $anchor('/app/multiwan/routes/set_state/' . $status . '/' . $rule['address'] . '/' . $rule['interface'], 'high'),
-            anchor_delete('/app/multiwan/routes/delete/' . $rule['address'] . '/' . $rule['interface'], 'low'),
+            $anchor('/app/multiwan/routes/set_state/' . $status . '/' . $address . '/' . $rule['interface'], 'high'),
+            anchor_delete('/app/multiwan/routes/delete/' . $address . '/' . $rule['interface'], 'low'),
         )
     );
     $item['details'] = array(

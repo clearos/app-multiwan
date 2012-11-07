@@ -88,30 +88,33 @@ class Routes extends ClearOS_Controller
     /**
      * Add entry view.
      *
-     * @param string $ip IP address
+     * @param string $address address
      *
      * @return view
      */
 
-    function add($ip = NULL)
+    function add($address)
     {
-        $this->_item($ip, 'add');
+        $this->_item($address, 'add');
     }
 
     /**
      * Delete entry view.
      *
-     * @param string $ip        IP address
+     * @param string $address   address
      * @param string $interface interface
      *
      * @return view
      */
 
-    function delete($ip = NULL, $interface = NULL)
+    function delete($address, $interface)
     {
-        $confirm_uri = '/app/multiwan/routes/destroy/' . $ip . '/' . $interface;
+        // Deal with embedded / in network notation
+        $converted_address = preg_replace('/-/', '/', $address);
+
+        $confirm_uri = '/app/multiwan/routes/destroy/' . $address . '/' . $interface;
         $cancel_uri = '/app/multiwan/routes';
-        $items = array($ip);
+        $items = array($converted_address);
 
         $this->page->view_confirm_delete($confirm_uri, $cancel_uri, $items);
     }
@@ -119,13 +122,13 @@ class Routes extends ClearOS_Controller
     /**
      * Destroys entry.
      *
-     * @param string $ip        IP address
+     * @param string $address   address
      * @param string $interface network interface
      *
      * @return view
      */
 
-    function destroy($ip = NULL, $interface = NULL)
+    function destroy($address, $interface)
     {
         // Load libraries
         //---------------
@@ -136,7 +139,10 @@ class Routes extends ClearOS_Controller
         //--------------
 
         try {
-            $this->multiwan->delete_source_based_route($ip, $interface);
+            // Deal with embedded / in network notation
+            $converted_address = preg_replace('/-/', '/', $address);
+
+            $this->multiwan->delete_source_based_route($converted_address, $interface);
             $this->multiwan->reset();
 
             $this->page->set_status_deleted();
@@ -151,13 +157,13 @@ class Routes extends ClearOS_Controller
      * Sets the state of the entry.
      *
      * @param string $type      enable or disable
-     * @param string $ip        IP address
+     * @param string $address   address
      * @param string $interface network interface
      *
      * @return view
      */
 
-    function set_state($type, $ip = NULL, $interface = NULL)
+    function set_state($type, $address = NULL, $interface = NULL)
     {
         // Load libraries
         //---------------
@@ -168,8 +174,11 @@ class Routes extends ClearOS_Controller
         //--------------
 
         try {
+            // Deal with embedded / in network notation
+            $converted_address = preg_replace('/-/', '/', $address);
+
             $state = ($type === 'enable') ? TRUE : FALSE;
-            $this->multiwan->set_source_based_route_state($state, $ip, $interface);
+            $this->multiwan->set_source_based_route_state($state, $converted_address, $interface);
             $this->multiwan->reset();
 
             $this->page->set_status_updated();
@@ -187,13 +196,13 @@ class Routes extends ClearOS_Controller
     /**
      * Common add/edit form handler.
      *
-     * @param string $ip        IP address
+     * @param string $address   address
      * @param string $form_type form type
      *
      * @return view
      */
 
-    function _item($ip, $form_type)
+    function _item($address, $form_type)
     {
         // Load libraries
         //---------------
@@ -205,7 +214,7 @@ class Routes extends ClearOS_Controller
         //---------
 
         $this->form_validation->set_policy('name', 'multiwan/MultiWAN', 'validate_name');
-        $this->form_validation->set_policy('address', 'multiwan/MultiWAN', 'validate_ip', TRUE);
+        $this->form_validation->set_policy('address', 'multiwan/MultiWAN', 'validate_address', TRUE);
         $this->form_validation->set_policy('interface', 'multiwan/MultiWAN', 'validate_interface', TRUE);
 
         $form_ok = $this->form_validation->run();
@@ -215,12 +224,12 @@ class Routes extends ClearOS_Controller
 
         if ($this->input->post('submit') && ($form_ok === TRUE)) {
 
-            $ip = $this->input->post('address');
+            $address = $this->input->post('address');
             $name = $this->input->post('name');
             $interface = $this->input->post('interface');
 
             try {
-                $this->multiwan->add_source_based_route($name, $ip, $interface);
+                $this->multiwan->add_source_based_route($name, $address, $interface);
                 $this->multiwan->reset();
 
                 $this->page->set_status_added();

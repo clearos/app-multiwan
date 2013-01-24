@@ -34,6 +34,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 $this->load->language('multiwan');
+$this->load->language('firewall');
 $this->load->language('network');
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,7 +44,7 @@ $this->load->language('network');
 echo form_open('/multiwan/ports/add');
 echo form_header(lang('multiwan_destination_port_rule'));
 
-echo field_input('name', $name, lang('multiwan_nickname'));
+echo field_input('name', $name, lang('firewall_nickname'));
 echo field_simple_dropdown('protocol', $protocols, $protocol, lang('network_protocol'));
 echo field_input('port', $port, lang('network_port'));
 echo field_simple_dropdown('interface', $interfaces, $interface, lang('network_interface'));

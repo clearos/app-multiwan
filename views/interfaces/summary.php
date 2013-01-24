@@ -35,6 +35,7 @@
 
 $this->lang->load('base');
 $this->lang->load('multiwan');
+$this->lang->load('network');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Headers
@@ -90,7 +91,7 @@ sort($items);
 ///////////////////////////////////////////////////////////////////////////////
 
 echo summary_table(
-	lang('multiwan_interfaces'),
+	lang('network_interfaces'),
 	$anchors,
 	$headers,
 	$items

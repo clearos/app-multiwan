@@ -66,6 +66,7 @@ class Interfaces extends ClearOS_Controller
 
         $this->load->library('multiwan/MultiWAN');
         $this->lang->load('multiwan');
+        $this->lang->load('network');
 
         // Load view data
         //---------------
@@ -80,7 +81,7 @@ class Interfaces extends ClearOS_Controller
         // Load views
         //-----------
 
-        $this->page->view_form('multiwan/interfaces/summary', $data, lang('multiwan_interfaces'));
+        $this->page->view_form('multiwan/interfaces/summary', $data, lang('network_interfaces'));
     }
 
     /**

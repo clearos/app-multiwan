@@ -1,7 +1,7 @@
 
 Name: app-multiwan
 Epoch: 1
-Version: 1.1.1
+Version: 1.4.15
 Release: 1%{dist}
 Summary: Multi-WAN
 License: GPLv3
@@ -21,7 +21,7 @@ License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
 Requires: app-network-core
-Requires: app-firewall-core
+Requires: app-firewall-core >= 1:1.4.15
 Requires: csplugin-routewatch
 Requires: iptables
 Requires: syswatch

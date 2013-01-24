@@ -109,7 +109,7 @@ class MultiWAN extends Firewall
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * MultiWAN constructor.
+     * Multi-WAN constructor.
      */
 
     public function __construct() 
@@ -146,7 +146,7 @@ class MultiWAN extends Firewall
         $rule->set_port($port);
         $rule->set_parameter($interface);
 
-        $this->add_rule($rule);
+        $this->_add_rule($rule);
     }
 
     /**
@@ -175,7 +175,7 @@ class MultiWAN extends Firewall
         $rule->set_address($address);
         $rule->set_parameter($interface);
 
-        $this->add_rule($rule);
+        $this->_add_rule($rule);
     }
 
     /**
@@ -204,11 +204,11 @@ class MultiWAN extends Firewall
         $rule->set_port($port);
         $rule->set_parameter($interface);
 
-        $this->delete_rule($rule);
+        $this->_delete_rule($rule);
     }
 
     /**
-     * Remove a source-based route rule from the firewall.
+     * Deletes a source-based route rule from the firewall.
      *
      * @param string $address   address
      * @param string $interface interface
@@ -231,7 +231,7 @@ class MultiWAN extends Firewall
         $rule->set_address($address);
         $rule->set_parameter($interface);
 
-        $this->delete_rule($rule);
+        $this->_delete_rule($rule);
     }
 
     /**
@@ -254,7 +254,7 @@ class MultiWAN extends Firewall
 
         $list = array();
 
-        $rules = $this->get_rules();
+        $rules = $this->_get_rules();
 
         foreach ($rules as $rule) {
             if (!($rule->get_flags() & (Rule::SBR_PORT)))
@@ -374,7 +374,7 @@ class MultiWAN extends Firewall
 
         $list = array();
 
-        $rules = $this->get_rules();
+        $rules = $this->_get_rules();
 
         foreach ($rules as $rule) {
             if (!($rule->get_flags() & (Rule::SBR_HOST)))
@@ -458,7 +458,7 @@ class MultiWAN extends Firewall
     }
 
     /**
-     * Enables/disables a destination port rule.
+     * Sets state of a destination port rule.
      *
      * @param boolean $state     state falg
      * @param string  $protocol  protocol
@@ -484,21 +484,21 @@ class MultiWAN extends Firewall
         $rule->set_port($port);
         $rule->set_parameter($interface);
 
-        if (!($rule = $this->find_rule($rule)))
+        if (!($rule = $this->_find_rule($rule)))
             return;
 
-        $this->delete_rule($rule);
+        $this->_delete_rule($rule);
 
         if ($state)
             $rule->enable();
         else
             $rule->disable();
 
-        $this->add_rule($rule);
+        $this->_add_rule($rule);
     }
 
     /**
-     * Enable/disable a source-based route rule.
+     * Sets state of a source-based route rule.
      *
      * @param boolean $state     state
      * @param string  $address   address
@@ -522,17 +522,17 @@ class MultiWAN extends Firewall
         $rule->set_address($address);
         $rule->set_parameter($interface);
 
-        if (!($rule = $this->find_rule($rule)))
+        if (!($rule = $this->_find_rule($rule)))
             return;
 
-        $this->delete_rule($rule);
+        $this->_delete_rule($rule);
 
         if ($state)
             $rule->enable();
         else
             $rule->disable();
 
-        $this->add_rule($rule);
+        $this->_add_rule($rule);
     }
 
     /**

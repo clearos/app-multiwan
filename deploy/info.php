@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 $app['basename'] = 'multiwan';
-$app['version'] = '1.1.1';
+$app['version'] = '1.4.15';
 $app['release'] = '1';
 $app['vendor'] = 'ClearFoundation';
 $app['packager'] = 'ClearFoundation';
@@ -26,7 +26,7 @@ $app['subcategory'] = lang('base_subcategory_settings');
 /////////////////////////////////////////////////////////////////////////////
 
 $app['controllers']['multiwan']['title'] = lang('multiwan_multiwan');
-$app['controllers']['interfaces']['title'] = lang('multiwan_interfaces');
+$app['controllers']['interfaces']['title'] = lang('network_interfaces');
 $app['controllers']['routes']['title'] = lang('multiwan_source_based_routes');
 $app['controllers']['ports']['title'] = lang('multiwan_destination_port_rules');
 
@@ -40,7 +40,7 @@ $app['requires'] = array(
 
 $app['core_requires'] = array(
     'app-network-core',
-    'app-firewall-core',
+    'app-firewall-core >= 1:1.4.15',
     'csplugin-routewatch',
     'iptables',
     'syswatch',

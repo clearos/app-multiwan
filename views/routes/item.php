@@ -34,6 +34,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 $this->load->language('multiwan');
+$this->load->language('firewall');
 $this->load->language('network');
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,7 @@ echo form_header(lang('multiwan_source_based_route'));
 ///////////////////////////////////////////////////////////////////////////////
 // Even though hostnames are permitted, we only allow IP addresses right now.
 
-echo field_input('name', $name, lang('multiwan_nickname'));
+echo field_input('name', $name, lang('firewall_nickname'));
 echo field_input('address', $address, lang('network_ip'));
 echo field_simple_dropdown('interface', $interfaces, $interface, lang('network_interface'));
 

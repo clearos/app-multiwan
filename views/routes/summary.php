@@ -36,13 +36,14 @@
 
 $this->lang->load('network');
 $this->lang->load('multiwan');
+$this->lang->load('firewall');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Headers
 ///////////////////////////////////////////////////////////////////////////////
 
 $headers = array(
-    lang('multiwan_nickname'),
+    lang('firewall_nickname'),
     lang('network_ip'),
     lang('network_interface'),
 );

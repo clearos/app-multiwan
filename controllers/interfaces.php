@@ -3,9 +3,9 @@
 /**
  * Multi-WAN interfaces controller.
  *
- * @category   Apps
- * @package    MultiWAN
- * @subpackage Controllers
+ * @category   apps
+ * @package    multiwan
+ * @subpackage controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
  * @copyright  2006-2011 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
@@ -42,9 +42,9 @@ use \Exception as Exception;
 /**
  * Multi-WAN interfaces controller.
  *
- * @category   Apps
- * @package    MultiWAN
- * @subpackage Controllers
+ * @category   apps
+ * @package    multiwan
+ * @subpackage controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
  * @copyright  2006-2011 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later

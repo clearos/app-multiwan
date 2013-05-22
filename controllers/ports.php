@@ -3,9 +3,9 @@
 /**
  * Multi-WAN destination port rules controller.
  *
- * @category   Apps
- * @package    MultiWAN
- * @subpackage Controllers
+ * @category   apps
+ * @package    multiwan
+ * @subpackage controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
  * @copyright  2006-2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
@@ -45,9 +45,9 @@ use \Exception as Exception;
 /**
  * Multi-WAN destination port rules controller.
  *
- * @category   Apps
- * @package    MultiWAN
- * @subpackage Controllers
+ * @category   apps
+ * @package    multiwan
+ * @subpackage controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
  * @copyright  2006-2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later

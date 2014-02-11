@@ -25,7 +25,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,11 +46,12 @@ $headers = array(
 	lang('network_ip'),
 	lang('multiwan_network_status'),
 	lang('multiwan_multiwan_status'),
-	lang('multiwan_weight')
+	lang('multiwan_weight'),
+	lang('multiwan_backup')
 );
 
 ///////////////////////////////////////////////////////////////////////////////
-// Anchors 
+// Anchors
 ///////////////////////////////////////////////////////////////////////////////
 
 $anchors = array();
@@ -64,6 +65,7 @@ foreach ($interfaces as $iface => $details) {
     // TODO: need a theme element here to highlight good/bad status
     $in_use = ($details['in_use']) ? lang('multiwan_in_use') : lang('multiwan_offline');
     $working = ($details['working']) ? lang('multiwan_online') : lang('multiwan_offline');
+    $backup = ($details['backup']) ? lang('multiwan_backup') : lang('multiwan_primary');
 
 	$item['title'] = "$iface / " .  $details['address'];
 	$item['action'] = "/app/multiwan/interfaces/edit/" . $iface;
@@ -78,7 +80,8 @@ foreach ($interfaces as $iface => $details) {
 		$details['address'],
         $working,
         $in_use,
-		$details['weight']
+		$details['weight'],
+		$backup
 	);
 
 	$items[] = $item;

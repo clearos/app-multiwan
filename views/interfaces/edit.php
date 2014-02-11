@@ -25,7 +25,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,8 @@ $buttons = array(
     anchor_cancel('/app/multiwan/'),
 );
 
-$weights = array(1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,75,100,200);
+$weights = array(1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,75,100,200,400);
+$backups = array(0 => lang('multiwan_primary'), 1 => lang('multiwan_backup'));
 
 ///////////////////////////////////////////////////////////////////////////////
 // Form
@@ -57,6 +58,7 @@ echo form_header(lang('multiwan_weight'));
 echo field_input('iface', $iface, lang('network_interface'), TRUE);
 echo field_input('address', $details['address'], lang('network_ip'), TRUE);
 echo field_simple_dropdown('weight', $weights, $details['weight'], lang('multiwan_weight'));
+echo field_dropdown('backup', $backups, $details['backup'], lang('multiwan_primary_or_backup'));
 
 echo field_button_set($buttons);
 

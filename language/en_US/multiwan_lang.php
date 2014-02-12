@@ -15,3 +15,6 @@ $lang['multiwan_source_based_routes'] = 'Source-based Routes';
 $lang['multiwan_weight'] = 'Weight';
 $lang['multiwan_weight_invalid'] = 'Multi-WAN weight is invalid.';
 $lang['multiwan_weight_out_of_range'] = 'Multi-WAN weight is out of range.';
+$lang['multiwan_primary'] = 'Primary';
+$lang['multiwan_backup'] = 'Backup';
+$lang['multiwan_primary_or_backup'] = 'Primary or backup';

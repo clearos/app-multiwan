@@ -310,8 +310,7 @@ class MultiWAN extends Firewall
         $ifaces = $iface_manager->get_external_interfaces();
         $working = $this->get_working_external_interfaces();
         $in_use = $this->get_in_use_external_interfaces();
-        
-
+        $backup = $this->get_backup_interfaces();
         $external = array();
 
         foreach ($ifaces as $iface) {
@@ -319,6 +318,7 @@ class MultiWAN extends Firewall
             $external[$iface]['in_use'] = (in_array($iface, $in_use)) ? TRUE : FALSE;
             $external[$iface]['address'] = (isset($iface_details[$iface]['address'])) ? $iface_details[$iface]['address'] : '';
             $external[$iface]['weight'] = $this->get_interface_weight($iface);
+            $external[$iface]['backup'] = (in_array($iface, $backup)) ? TRUE : FALSE;
         }
 
         return $external;
@@ -429,6 +429,32 @@ class MultiWAN extends Firewall
         $status = new Network_Status();
 
         return $status->get_in_use_external_interfaces();
+    }
+
+    public function debug($message)
+    {
+    	error_log($message, 0);
+    }
+
+    /**
+     * Returns list of interfaces marked as backup interfaces.
+     *
+     * @return array list of backup WAN interfaces
+     */
+
+    public function get_backup_interfaces()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+        $ph = @popen("source " . self::FILE_CONFIG . " && echo \$EXTIF_BACKUP", "r");
+
+        if ($ph) {
+			$data = chop(fgets($ph));
+	        $result = explode(' ', $data);
+	        pclose($ph);
+		} else {
+	        $result = array();
+		}
+        return $result;
     }
 
     /**
@@ -582,6 +608,59 @@ class MultiWAN extends Firewall
         if ($matches < 1)
             $config->add_lines("MULTIPATH_WEIGHTS=\"$weights\"\n");
     }
+
+    /**
+     * Sets whether a multi-WAN interface is a backup or primary.
+     *
+     * @param string  $interface interface
+     * @param bool $backup    true if this is a backup interface
+     *
+     * @return void
+     * @throws Engine_Exception
+     */
+
+    public function set_interface_backup($interface, $backup)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+        // Validation
+        //-----------
+
+        Validation_Exception::is_valid($this->validate_interface($interface));
+
+        // Set configuration
+        //------------------
+
+        $backups = $backup ? "$interface " : "";
+
+        $ifaces = $this->get_external_interfaces();
+        $valid = !$backup;
+        foreach ($ifaces as $iface => $details) {
+            if ($interface == $iface)
+                continue;
+
+            if($details['backup']) $backups .= "$iface ";
+            else $valid = true;
+        }
+
+        if(!$valid) {
+        	//!!!!!!!!!!!!!! Needs an entry lang !!!!!!!!!!!!!!
+        	Validation_Exception::is_valid('At least one interface must be a primary (not a backup)');
+        }
+
+        $config = new File(self::FILE_CONFIG);
+        $matches = 0;
+
+        try {
+            $matches = $config->replace_lines("/^EXTIF_BACKUP=.*/", "EXTIF_BACKUP=\"$backups\"\n");
+        } catch (File_Not_Found_Exception $e) {
+            // Not fatal
+            $config->create('root', 'root', '0644');
+        }
+
+        if ($matches < 1)
+            $config->add_lines("EXTIF_BACKUP=\"$backups\"\n");
+    }
+
 
     /**
      * Sets the state of multi-WAN mode.

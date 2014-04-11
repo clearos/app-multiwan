@@ -4,6 +4,7 @@
 
 $lang['multiwan_app_description'] = 'Multi-WAN appen ger dig möjlighet att ansluta ditt system till multipla Internetanslutningar.  Multi-WAN ger många fördelar till system som kräver en tillförlitlig anslutning, inklusive balansering av belastning, separation av paket och automatisk redundans.';
 $lang['multiwan_app_name'] = 'Multi-WAN';
+$lang['multiwan_backup'] = 'Backup';
 $lang['multiwan_destination_port_rule'] = 'Regel för målport';
 $lang['multiwan_destination_port_rules'] = 'Regler för målport';
 $lang['multiwan_in_use'] = 'Används';
@@ -12,6 +13,8 @@ $lang['multiwan_multiwan_status'] = 'Status för Multi-WAN';
 $lang['multiwan_network_status'] = 'Nätverksstatus';
 $lang['multiwan_offline'] = 'Offline';
 $lang['multiwan_online'] = 'Online';
+$lang['multiwan_primary'] = 'Primary';
+$lang['multiwan_primary_or_backup'] = 'Primary or backup';
 $lang['multiwan_source_based_route'] = 'Källbaserad rutt';
 $lang['multiwan_source_based_routes'] = 'Källbaserade rutter';
 $lang['multiwan_weight'] = 'Viktning';

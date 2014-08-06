@@ -1,7 +1,7 @@
 
 Name: app-multiwan
 Epoch: 1
-Version: 1.4.20
+Version: 1.6.5
 Release: 1%{dist}
 Summary: Multi-WAN
 License: GPLv3
@@ -78,7 +78,6 @@ exit 0
 %files core
 %defattr(-,root,root)
 %exclude /usr/clearos/apps/multiwan/packaging
-%exclude /usr/clearos/apps/multiwan/tests
 %dir /usr/clearos/apps/multiwan
 /usr/clearos/apps/multiwan/deploy
 /usr/clearos/apps/multiwan/language

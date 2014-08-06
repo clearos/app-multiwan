@@ -7,7 +7,7 @@
  * @package    multiwan
  * @subpackage libraries
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2014 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -87,7 +87,7 @@ clearos_load_library('base/Validation_Exception');
  * @package    multiwan
  * @subpackage libraries
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2014 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -431,11 +431,6 @@ class MultiWAN extends Firewall
         return $status->get_in_use_external_interfaces();
     }
 
-    public function debug($message)
-    {
-    	error_log($message, 0);
-    }
-
     /**
      * Returns list of interfaces marked as backup interfaces.
      *
@@ -448,12 +443,12 @@ class MultiWAN extends Firewall
         $ph = @popen("source " . self::FILE_CONFIG . " && echo \$EXTIF_BACKUP", "r");
 
         if ($ph) {
-			$data = chop(fgets($ph));
-	        $result = explode(' ', $data);
-	        pclose($ph);
-		} else {
-	        $result = array();
-		}
+            $data = chop(fgets($ph));
+            $result = explode(' ', $data);
+            pclose($ph);
+        } else {
+            $result = array();
+        }
         return $result;
     }
 
@@ -613,7 +608,7 @@ class MultiWAN extends Firewall
      * Sets whether a multi-WAN interface is a backup or primary.
      *
      * @param string  $interface interface
-     * @param bool $backup    true if this is a backup interface
+     * @param boolean $backup    true if this is a backup interface
      *
      * @return void
      * @throws Engine_Exception
@@ -622,6 +617,7 @@ class MultiWAN extends Firewall
     public function set_interface_backup($interface, $backup)
     {
         clearos_profile(__METHOD__, __LINE__);
+
         // Validation
         //-----------
 
@@ -639,12 +635,12 @@ class MultiWAN extends Firewall
                 continue;
 
             if($details['backup']) $backups .= "$iface ";
-            else $valid = true;
+            else $valid = TRUE;
         }
 
-        if(!$valid) {
-        	//!!!!!!!!!!!!!! Needs an entry lang !!!!!!!!!!!!!!
-        	Validation_Exception::is_valid('At least one interface must be a primary (not a backup)');
+        if (!$valid) {
+            // TODO: translation tag
+            Validation_Exception::is_valid('At least one interface must be a primary (not a backup)');
         }
 
         $config = new File(self::FILE_CONFIG);

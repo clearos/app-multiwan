@@ -7,7 +7,7 @@
  * @package    multiwan
  * @subpackage views
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2012 ClearFoundation
+ * @copyright  2006-2015 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -59,10 +59,10 @@ $anchors = array(anchor_add('/app/multiwan/ports/add'));
 // Items
 ///////////////////////////////////////////////////////////////////////////////
 
-// Array ( [0] => Array ( [name] => bob [port] => 3333 [protocol] => 6 [protocol_name] => TCP [interface] => eth1 [enabled] => 268435456 ) )
 foreach ($ports as $rule) {
     $status = ($rule['enabled']) ? 'disable' : 'enable';
     $anchor = ($rule['enabled']) ? 'anchor_disable' : 'anchor_enable';
+    $item['current_state'] = (bool)$rule['enabled'];
     $key = $rule['protocol_name'] . '/' . $rule['port'] . '/' . $rule['interface'];
 
     $item['title'] = $rule['name'];
@@ -87,9 +87,14 @@ foreach ($ports as $rule) {
 // Summary table
 ///////////////////////////////////////////////////////////////////////////////
 
+$options = array(
+    'id' => 'destination-port-summary',
+    'row-enable-disable' => TRUE
+);
 echo summary_table(
     lang('multiwan_destination_port_rules'),
     $anchors,
     $headers,
-    $items
+    $items,
+    $options
 );

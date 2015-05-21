@@ -7,7 +7,7 @@
  * @package    multiwan
  * @subpackage views
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2015 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -68,6 +68,7 @@ foreach ($routes as $rule) {
     $status = ($rule['enabled']) ? 'disable' : 'enable';
     $anchor = ($rule['enabled']) ? 'anchor_disable' : 'anchor_enable';
 
+    $item['current_state'] = (bool)$rule['enabled'];
     $item['title'] = $rule['name'];
     $item['action'] = '/app/multiwan/routes/edit/' . $$address;
     $item['anchors'] = button_set(
@@ -89,9 +90,14 @@ foreach ($routes as $rule) {
 // Summary table
 ///////////////////////////////////////////////////////////////////////////////
 
+$options = array(
+    'id' => 'source-based-summary',
+    'row-enable-disable' => TRUE
+);
 echo summary_table(
     lang('multiwan_source_based_routes'),
     $anchors,
     $headers,
-    $items
+    $items,
+    $options
 );

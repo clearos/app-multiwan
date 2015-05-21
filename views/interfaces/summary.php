@@ -42,7 +42,7 @@ $this->lang->load('network');
 ///////////////////////////////////////////////////////////////////////////////
 
 $headers = array(
-    '',
+	lang('network_interface'),
 	lang('network_ip'),
 	lang('multiwan_network_status'),
 	lang('multiwan_multiwan_status'),
@@ -93,9 +93,15 @@ sort($items);
 // Summary table
 ///////////////////////////////////////////////////////////////////////////////
 
+$options = array(
+    'id' => 'iface_summary',
+    'responsive' => array(1 => 'none', 4 => 'none'),
+);
+
 echo summary_table(
 	lang('network_interfaces'),
 	$anchors,
 	$headers,
-	$items
+	$items,
+    $options
 );

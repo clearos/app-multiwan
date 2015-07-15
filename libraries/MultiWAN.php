@@ -7,7 +7,7 @@
  * @package    multiwan
  * @subpackage libraries
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2014 ClearFoundation
+ * @copyright  2006-2015 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -56,12 +56,14 @@ clearos_load_language('multiwan');
 //--------
 
 use \clearos\apps\base\File as File;
+use \clearos\apps\base\Daemon as Daemon;
 use \clearos\apps\firewall\Firewall as Firewall;
 use \clearos\apps\firewall\Rule as Rule;
 use \clearos\apps\network\Iface_Manager as Iface_Manager;
 use \clearos\apps\network\Network_Status as Network_Status;
 
 clearos_load_library('base/File');
+clearos_load_library('base/Daemon');
 clearos_load_library('firewall/Firewall');
 clearos_load_library('firewall/Rule');
 clearos_load_library('network/Iface_Manager');
@@ -655,6 +657,10 @@ class MultiWAN extends Firewall
 
         if ($matches < 1)
             $config->add_lines("EXTIF_BACKUP=\"$backups\"\n");
+
+        // Reset syswatch to pick up on new settings
+        $syswatch = new Daemon('syswatch');
+        $syswatch->reset();
     }
 
 

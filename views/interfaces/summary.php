@@ -63,8 +63,13 @@ $anchors = array();
 foreach ($interfaces as $iface => $details) {
 
     // TODO: need a theme element here to highlight good/bad status
-    $in_use = ($details['in_use']) ? lang('multiwan_in_use') : lang('multiwan_offline');
-    $working = ($details['working']) ? lang('multiwan_online') : lang('multiwan_offline');
+    if ($details['mode'] === 'standby') {
+        $in_use = '-';
+        $working = '-';
+    } else {
+        $in_use = ($details['in_use']) ? lang('multiwan_in_use') : lang('multiwan_offline');
+        $working = ($details['working']) ? lang('multiwan_online') : lang('multiwan_offline');
+    }
 
 	$item['title'] = "$iface / " .  $details['address'];
 	$item['action'] = "/app/multiwan/interfaces/edit/" . $iface;

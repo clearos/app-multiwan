@@ -7,7 +7,7 @@
  * @package    multiwan
  * @subpackage views
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2011 ClearFoundation
+ * @copyright  2006-2016 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -45,9 +45,6 @@ $buttons = array(
     anchor_cancel('/app/multiwan/'),
 );
 
-$weights = array(1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,75,100,200,400);
-$backups = array(0 => lang('multiwan_primary'), 1 => lang('multiwan_backup'));
-
 ///////////////////////////////////////////////////////////////////////////////
 // Form
 ///////////////////////////////////////////////////////////////////////////////
@@ -58,7 +55,7 @@ echo form_header(lang('multiwan_weight'));
 echo field_input('iface', $iface, lang('network_interface'), TRUE);
 echo field_input('address', $details['address'], lang('network_ip'), TRUE);
 echo field_simple_dropdown('weight', $weights, $details['weight'], lang('multiwan_weight'));
-echo field_dropdown('backup', $backups, $details['backup'], lang('multiwan_primary_or_backup'));
+echo field_dropdown('mode', $modes, $details['mode'], lang('multiwan_mode'));
 
 echo field_button_set($buttons);
 

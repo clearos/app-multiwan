@@ -104,6 +104,9 @@ class MultiWAN extends Firewall
     const COMMAND_FIREWALL_START = '/usr/sbin/firewall-start';
     const CONSTANT_ON = 'on';
     const CONSTANT_OFF = 'off';
+    const MODE_PRIMARY = 'primary';
+    const MODE_BACKUP = 'backup';
+    const MODE_STANDBY = 'standby';
     const DEFAULT_WEIGHT = 1;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -313,6 +316,7 @@ class MultiWAN extends Firewall
         $working = $this->get_working_external_interfaces();
         $in_use = $this->get_in_use_external_interfaces();
         $backup = $this->get_backup_interfaces();
+        $standby = $this->get_standby_interfaces();
         $external = array();
 
         foreach ($ifaces as $iface) {
@@ -320,7 +324,17 @@ class MultiWAN extends Firewall
             $external[$iface]['in_use'] = (in_array($iface, $in_use)) ? TRUE : FALSE;
             $external[$iface]['address'] = (isset($iface_details[$iface]['address'])) ? $iface_details[$iface]['address'] : '';
             $external[$iface]['weight'] = $this->get_interface_weight($iface);
-            $external[$iface]['backup'] = (in_array($iface, $backup)) ? TRUE : FALSE;
+
+            if (in_array($iface, $backup)) {
+                $external[$iface]['mode'] = self::MODE_BACKUP;
+                $external[$iface]['mode_text'] = lang('multiwan_backup');
+            } else if (in_array($iface, $standby)) {
+                $external[$iface]['mode'] = self::MODE_STANDBY;
+                $external[$iface]['mode_text'] = lang('multiwan_standby');
+            } else {
+                $external[$iface]['mode'] = self::MODE_PRIMARY;
+                $external[$iface]['mode_text'] = lang('multiwan_primary');
+            }
         }
 
         return $external;
@@ -356,6 +370,24 @@ class MultiWAN extends Firewall
         }
 
         return self::DEFAULT_WEIGHT;
+    }
+
+    /**
+     * Returns modes.
+     *
+     * @return array array list of modes
+     */
+
+    public function get_modes()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        return array(
+            self::MODE_PRIMARY => lang('multiwan_primary'),
+            self::MODE_BACKUP => lang('multiwan_backup'),
+            self::MODE_STANDBY => lang('multiwan_standby')
+        );
+
     }
 
     /**
@@ -442,6 +474,7 @@ class MultiWAN extends Firewall
     public function get_backup_interfaces()
     {
         clearos_profile(__METHOD__, __LINE__);
+
         $ph = @popen("source " . self::FILE_CONFIG . " && echo \$EXTIF_BACKUP", "r");
 
         if ($ph) {
@@ -452,6 +485,42 @@ class MultiWAN extends Firewall
             $result = array();
         }
         return $result;
+    }
+
+    /**
+     * Returns list of interfaces marked as standby interfaces.
+     *
+     * @return array list of standby WAN interfaces
+     */
+
+    public function get_standby_interfaces()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        $ph = @popen("source " . self::FILE_CONFIG . " && echo \$EXTIF_STANDBY", "r");
+
+        if ($ph) {
+            $data = chop(fgets($ph));
+            $result = explode(' ', $data);
+            pclose($ph);
+        } else {
+            $result = array();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns list of standard weights.
+     *
+     * @return array list of standard weights
+     */
+
+    public function get_weights()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        return array(1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,75,100,200,400);
     }
 
     /**
@@ -610,13 +679,13 @@ class MultiWAN extends Firewall
      * Sets whether a multi-WAN interface is a backup or primary.
      *
      * @param string  $interface interface
-     * @param boolean $backup    true if this is a backup interface
+     * @param boolean $mode      mode of interface
      *
      * @return void
      * @throws Engine_Exception
      */
 
-    public function set_interface_backup($interface, $backup)
+    public function set_interface_mode($interface, $mode)
     {
         clearos_profile(__METHOD__, __LINE__);
 
@@ -628,22 +697,33 @@ class MultiWAN extends Firewall
         // Set configuration
         //------------------
 
-        $backups = $backup ? "$interface " : "";
+        $backups = ($mode === self::MODE_BACKUP) ? "$interface " : "";
+        $standbys = ($mode === self::MODE_STANDBY) ? "$interface " : "";
 
         $ifaces = $this->get_external_interfaces();
-        $valid = !$backup;
+        $at_least_one_primary = ($mode === self::MODE_PRIMARY) ? TRUE : FALSE;
+
         foreach ($ifaces as $iface => $details) {
             if ($interface == $iface)
                 continue;
 
-            if($details['backup']) $backups .= "$iface ";
-            else $valid = TRUE;
+            if ($details['mode'] === self::MODE_BACKUP)
+                $backups .= "$iface ";
+            else if ($details['mode'] === self::MODE_STANDBY)
+                $standbys .= "$iface ";
+            else
+                $at_least_one_primary = TRUE;
         }
 
-        if (!$valid) {
+        if (!$at_least_one_primary) {
             // TODO: translation tag
             Validation_Exception::is_valid('At least one interface must be a primary (not a backup)');
         }
+
+        // Write backup interface parameter
+        //---------------------------------
+
+        $backups = trim($backups);
 
         $config = new File(self::FILE_CONFIG);
         $matches = 0;
@@ -658,11 +738,29 @@ class MultiWAN extends Firewall
         if ($matches < 1)
             $config->add_lines("EXTIF_BACKUP=\"$backups\"\n");
 
+        // Write standby interface parameter
+        //---------------------------------
+
+        $standbys = trim($standbys);
+
+        $matches = 0;
+
+        try {
+            $matches = $config->replace_lines("/^EXTIF_STANDBY=.*/", "EXTIF_STANDBY=\"$standbys\"\n");
+        } catch (File_Not_Found_Exception $e) {
+            // Not fatal
+            $config->create('root', 'root', '0644');
+        }
+
+        if ($matches < 1)
+            $config->add_lines("EXTIF_STANDBY=\"$standbys\"\n");
+
         // Reset syswatch to pick up on new settings
+        //------------------------------------------
+
         $syswatch = new Daemon('syswatch');
         $syswatch->reset();
     }
-
 
     /**
      * Sets the state of multi-WAN mode.

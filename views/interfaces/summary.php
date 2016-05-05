@@ -47,7 +47,7 @@ $headers = array(
 	lang('multiwan_network_status'),
 	lang('multiwan_multiwan_status'),
 	lang('multiwan_weight'),
-	lang('multiwan_backup')
+	lang('multiwan_mode')
 );
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,6 @@ foreach ($interfaces as $iface => $details) {
     // TODO: need a theme element here to highlight good/bad status
     $in_use = ($details['in_use']) ? lang('multiwan_in_use') : lang('multiwan_offline');
     $working = ($details['working']) ? lang('multiwan_online') : lang('multiwan_offline');
-    $backup = ($details['backup']) ? lang('multiwan_backup') : lang('multiwan_primary');
 
 	$item['title'] = "$iface / " .  $details['address'];
 	$item['action'] = "/app/multiwan/interfaces/edit/" . $iface;
@@ -81,7 +80,7 @@ foreach ($interfaces as $iface => $details) {
         $working,
         $in_use,
 		$details['weight'],
-		$backup
+		$details['mode_text']
 	);
 
 	$items[] = $item;

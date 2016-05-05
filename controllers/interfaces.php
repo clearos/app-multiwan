@@ -115,7 +115,7 @@ class Interfaces extends ClearOS_Controller
 
             try {
                 $this->multiwan->set_interface_weight($iface, $this->input->post('weight'));
-				$this->multiwan->set_interface_backup($iface, $this->input->post('backup'));
+				$this->multiwan->set_interface_mode($iface, $this->input->post('mode'));
                 $this->page->set_status_updated();
                 redirect('/multiwan/interfaces');
             } catch (Exception $e) {
@@ -129,6 +129,8 @@ class Interfaces extends ClearOS_Controller
 
         try {
             $data['details'] = $this->multiwan->get_external_interface($iface);
+            $data['weights'] = $this->multiwan->get_weights();
+            $data['modes'] = $this->multiwan->get_modes();
             $data['iface'] = $iface;
         } catch (Exception $e) {
             $this->page->view_exception($e);

@@ -58,13 +58,47 @@ class MultiWAN extends ClearOS_Controller
         // Load libraries
         //---------------
 
+        $this->load->library('multiwan/MultiWAN');
         $this->lang->load('multiwan');
+
+        // Load view data
+        //---------------
+
+        try {
+            $status = $this->multiwan->get_external_status();
+        } catch (Exception $e) {
+            $this->page->view_exception($e);
+            return;
+        }
 
         // Load views
         //-----------
 
-        $views = array('multiwan/interfaces', 'multiwan/routes', 'multiwan/ports');
+        if ($status) {
+            $views = array('multiwan/interfaces', 'multiwan/routes', 'multiwan/ports');
 
-        $this->page->view_forms($views, lang('multiwan_multiwan'));
+            $this->page->view_forms($views, lang('multiwan_multiwan'));
+        } else {
+            $this->page->view_form('multiwan/waiting', NULL, lang('multiwan_multiwan'));
+        }
     }
+
+    /**
+     * Multi-WAN status.
+     *
+     * @return status encoded in json
+     */
+
+    function status()
+    {
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Content-type: application/json');
+
+        $this->load->library('multiwan/MultiWAN');
+
+        $status['status'] = $this->multiwan->get_external_status();
+
+        echo json_encode($status);
+    }
+
 }

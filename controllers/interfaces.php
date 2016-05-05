@@ -72,7 +72,10 @@ class Interfaces extends ClearOS_Controller
         //---------------
 
         try {
-            $data['interfaces'] = $this->multiwan->get_external_interfaces();
+            $data['state'] = $this->multiwan->get_external_status();
+
+            if ($data['state'])
+                $data['interfaces'] = $this->multiwan->get_external_interfaces();
         } catch (Exception $e) {
             $this->page->view_exception($e);
             return;

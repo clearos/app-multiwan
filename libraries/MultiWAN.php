@@ -7,7 +7,7 @@
  * @package    multiwan
  * @subpackage libraries
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2006-2015 ClearFoundation
+ * @copyright  2006-2016 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/multiwan/
  */
@@ -55,15 +55,15 @@ clearos_load_language('multiwan');
 // Classes
 //--------
 
-use \clearos\apps\base\File as File;
 use \clearos\apps\base\Daemon as Daemon;
+use \clearos\apps\base\File as File;
 use \clearos\apps\firewall\Firewall as Firewall;
 use \clearos\apps\firewall\Rule as Rule;
 use \clearos\apps\network\Iface_Manager as Iface_Manager;
 use \clearos\apps\network\Network_Status as Network_Status;
 
-clearos_load_library('base/File');
 clearos_load_library('base/Daemon');
+clearos_load_library('base/File');
 clearos_load_library('firewall/Firewall');
 clearos_load_library('firewall/Rule');
 clearos_load_library('network/Iface_Manager');
@@ -74,9 +74,11 @@ clearos_load_library('network/Network_Status');
 
 use \clearos\apps\base\File_Not_Found_Exception as File_Not_Found_Exception;
 use \clearos\apps\base\Validation_Exception as Validation_Exception;
+use \clearos\apps\network\Network_Status_Unknown_Exception as Network_Status_Unknown_Exception;
 
 clearos_load_library('base/File_Not_Found_Exception');
 clearos_load_library('base/Validation_Exception');
+clearos_load_library('network/Network_Status_Unknown_Exception');
 
 ///////////////////////////////////////////////////////////////////////////////
 // C L A S S
@@ -338,6 +340,27 @@ class MultiWAN extends Firewall
         }
 
         return $external;
+    }
+
+    /**
+     * Returns status of the extnernal network
+     *
+     * @return boolean TRUE if status is available
+     */
+
+    public function get_external_status()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        try {
+            $status = new Network_Status();
+            $status->get_working_external_interfaces();
+            $retval = TRUE;
+        } catch (Network_Status_Unknown_Exception $e) {
+            $retval = FALSE;
+        }
+
+        return $retval;
     }
 
     /**

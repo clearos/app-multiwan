@@ -43,7 +43,7 @@ $app['core_requires'] = array(
     'app-firewall-core >= 1:1.4.15',
     'csplugin-routewatch',
     'iptables',
-    'syswatch',
+    'syswatch >= 7.1',
 );
 
 $app['core_file_manifest'] = array(

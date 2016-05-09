@@ -24,7 +24,7 @@ Requires: app-network-core
 Requires: app-firewall-core >= 1:1.4.15
 Requires: csplugin-routewatch
 Requires: iptables
-Requires: syswatch
+Requires: syswatch >= 7.1
 
 %description core
 The Multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection, including load balancing, packet segregation and automatic failover.

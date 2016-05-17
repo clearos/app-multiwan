@@ -1,7 +1,7 @@
 
 Name: app-multiwan
 Epoch: 1
-Version: 2.1.7
+Version: 2.2.0
 Release: 1%{dist}
 Summary: Multi-WAN
 License: GPLv3

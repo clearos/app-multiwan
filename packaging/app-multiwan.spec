@@ -1,11 +1,13 @@
 
 Name: app-multiwan
 Epoch: 1
-Version: 2.3.0
+Version: 2.4.0
 Release: 1%{dist}
 Summary: Multi-WAN
 License: GPLv3
-Group: ClearOS/Apps
+Group: Applications/Apps
+Packager: ClearFoundation
+Vendor: ClearFoundation
 Source: %{name}-%{version}.tar.gz
 Buildarch: noarch
 Requires: %{name}-core = 1:%{version}-%{release}
@@ -16,9 +18,9 @@ Requires: app-network
 The Multi-WAN app allows you to connect your system to multiple Internet connections. Multi-WAN offers many benefits to environments requiring a reliable connection, including load balancing, packet segregation and automatic failover.
 
 %package core
-Summary: Multi-WAN - Core
+Summary: Multi-WAN - API
 License: LGPLv3
-Group: ClearOS/Libraries
+Group: Applications/API
 Requires: app-base-core
 Requires: app-network-core
 Requires: app-firewall-core >= 1:1.4.15
@@ -78,6 +80,7 @@ exit 0
 %files core
 %defattr(-,root,root)
 %exclude /usr/clearos/apps/multiwan/packaging
+%exclude /usr/clearos/apps/multiwan/unify.json
 %dir /usr/clearos/apps/multiwan
 /usr/clearos/apps/multiwan/deploy
 /usr/clearos/apps/multiwan/language
